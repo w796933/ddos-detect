@@ -16,23 +16,20 @@
 
 using namespace std;
 
-struct DDOSAttack {
+typedef struct DDOSAttack {
     int protocol;
     NSMutableSet *sourceIps;
     time_t startTime;
     time_t endTime;
     u_int numPackets;
-};
+} ddos_t;
 
-typedef struct DDOSAttack ddos_t;
-
-static NSString *attackDetectedEvent = @"DDOSAttackDetected";
-static const u_int THRESHOLD = 10;
-static id _thisClass;
+static const u_int THRESHOLD = 100;
 
 @interface PCAPAnalyzer ()
 
 @property (nonatomic, retain) NSMutableDictionary *ddosMap;
+@property (nonatomic) map<string, ddos_t> hm;
 
 @end
 
@@ -71,7 +68,6 @@ static id _thisClass;
 }
 
 void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_char* packet) {
-    
     const struct ether_header* ethernetHeader;
     const struct ip* ipHeader;
     char sourceIp[INET_ADDRSTRLEN];
@@ -85,7 +81,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
         inet_ntop(AF_INET, &(ipHeader->ip_src), sourceIp, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(ipHeader->ip_dst), destIp, INET_ADDRSTRLEN);
         
-        cout << sourceIp << " >> " << destIp << " @ " << pkthdr->ts.tv_sec << endl;
+        //cout << sourceIp << " >> " << destIp << " @ " << pkthdr->ts.tv_sec << endl;
 
         attack.protocol = ipHeader->ip_p;
         [attack.sourceIps addObject: [NSString stringWithCString: sourceIp encoding: NSASCIIStringEncoding]];
@@ -93,47 +89,50 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
         attack.endTime = pkthdr->ts.tv_sec;
         attack.numPackets = 1;
         
-        [_thisClass populateMap: attack destination: [NSString stringWithCString: destIp encoding: NSUTF8StringEncoding]];
+        string dest(destIp);
+        // this should be illegal
+        [_thisClass populateMap: attack destination: destIp];
     }
 }
 
-- (void) populateMap: (DDOSAttack) attack destination: (NSString *) destIp {
-    if ([_ddosMap objectForKey:destIp] == nil) {
-        [_ddosMap setObject:[self cStructToObjc:attack] forKey:destIp];
+- (void) populateMap: (DDOSAttack) attack destination: (char *) destIp {
+    string dest(destIp);
+    if (_hm.find(dest) == _hm.end()) {
+        _hm[dest] = attack;
     } else {
-        DDOSAttack da = [self objcToStruct: [_ddosMap valueForKey:destIp]];
+        DDOSAttack da = _hm[dest];
         if (da.startTime == attack.startTime) {
             da.numPackets++; // still the same second
             [da.sourceIps addObject:[[attack.sourceIps allObjects] objectAtIndex:0]];
             da.protocol = da.protocol != attack.protocol ? attack.protocol : da.protocol;
-        } else { // count number of packets per second
-            if (da.numPackets == THRESHOLD) {
-                cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> RED ALERT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << endl;
-                NSDictionary *dictionary = [NSDictionary dictionaryWithObject: [self cStructToObjc: da] forKey:@"attack"];
-                [[NSNotificationCenter defaultCenter] postNotificationName: attackDetectedEvent object: self userInfo: dictionary];
+        } else {
+            if (da.numPackets >= THRESHOLD && (attack.startTime - da.startTime == 1)) {
+                cout << " >> " << destIp << " @ " << da.startTime << endl;
+                NSMutableDictionary *att = [self cStructToDict:da].mutableCopy;
+                [att setObject: [NSString stringWithCString:destIp encoding:NSUTF8StringEncoding] forKey:@"destIp"];
+                NSDictionary *dictionary = [NSDictionary dictionaryWithObject: att forKey: @"attack"];
+                [[NSNotificationCenter defaultCenter] postNotificationName: attackDetectedEvent object: nil userInfo: dictionary];
             }
             da.protocol = attack.protocol;
             da.startTime = attack.startTime;
-            da.endTime = attack.endTime;
+            da.endTime = attack.endTime; // you don't really need end time...we are concerned with 1 sec periods only
             da.numPackets = 1;
             [da.sourceIps removeAllObjects];
         }
         // re-populate
-        [_ddosMap setObject:[self cStructToObjc:attack] forKey:destIp];
+        _hm[dest] = da;
     }
 }
 
-- (DDOSAttack)objcToStruct: (NSValue *) val {
-    // cast back to C struct (convert to struct pointer, then dereference)
-    DDOSAttack attack;
-
-    [val getValue: &attack];
-
-    return attack;
-}
-
-- (NSValue *)cStructToObjc: (DDOSAttack) attack {
-    return [NSValue valueWithBytes:&attack objCType:@encode(ddos_t)];
+- (NSDictionary *) cStructToDict: (DDOSAttack) attack {
+    NSDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                          [NSNumber numberWithInt: attack.protocol], @"protocol",
+                          [NSNumber numberWithInt: attack.numPackets], @"numPackets",
+                          [NSNumber numberWithLong: attack.startTime], @"startTime",
+                          [NSNumber numberWithLong: attack.endTime], @"endTime",
+                          attack.sourceIps, @"sourceIps",
+                          nil];
+    return dict;
 }
 
 @end
