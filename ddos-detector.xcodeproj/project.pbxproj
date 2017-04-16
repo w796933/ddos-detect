@@ -66,14 +66,12 @@
 		97AF48C11EA2D3AD002432FA /* ddos-detector */ = {
 			isa = PBXGroup;
 			children = (
-				97AF48D91EA2D559002432FA /* PCAPAnalyzer.h */,
+				D9379F4D1EA3126D009AA49A /* Controllers */,
+				D9379F4C1EA31258009AA49A /* PCAPAnalyzer */,
 				97AF48C21EA2D3AD002432FA /* AppDelegate.h */,
 				97AF48C31EA2D3AD002432FA /* AppDelegate.mm */,
-				97AF48C81EA2D3AD002432FA /* ViewController.h */,
-				97AF48C91EA2D3AD002432FA /* ViewController.mm */,
 				97AF48CB1EA2D3AD002432FA /* Assets.xcassets */,
 				97AF48CD1EA2D3AD002432FA /* Main.storyboard */,
-				97AF48D61EA2D509002432FA /* PCAPAnalyzer.mm */,
 				97AF48D01EA2D3AD002432FA /* Info.plist */,
 				97AF48C51EA2D3AD002432FA /* Supporting Files */,
 			);
@@ -95,6 +93,24 @@
 				97AF48DC1EA2E96E002432FA /* libpcap.tbd */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D9379F4C1EA31258009AA49A /* PCAPAnalyzer */ = {
+			isa = PBXGroup;
+			children = (
+				97AF48D91EA2D559002432FA /* PCAPAnalyzer.h */,
+				97AF48D61EA2D509002432FA /* PCAPAnalyzer.mm */,
+			);
+			name = PCAPAnalyzer;
+			sourceTree = "<group>";
+		};
+		D9379F4D1EA3126D009AA49A /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				97AF48C81EA2D3AD002432FA /* ViewController.h */,
+				97AF48C91EA2D3AD002432FA /* ViewController.mm */,
+			);
+			name = Controllers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

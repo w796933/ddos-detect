@@ -1,11 +1,3 @@
-//
-//  ViewController.m
-//  ddos-detector
-//
-//  Created by Joanna Bitton on 4/15/17.
-//  Copyright © 2017 Joanna Bitton. All rights reserved.
-//
-
 #import "ViewController.h"
 #import "PCAPAnalyzer.h"
 
@@ -20,8 +12,6 @@ using namespace std;
     
     PCAPAnalyzer *analyzer = [[PCAPAnalyzer alloc] init];
     [analyzer analyze];
-    
-    
 }
 
 - (void)setRepresentedObject:(id)representedObject {
