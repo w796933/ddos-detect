@@ -1,5 +1,5 @@
 //
-//  AppDelegate.m
+//  AppDelegate.mm
 //  ddos-detector
 //
 //  Created by Joanna Bitton on 4/15/17.

@@ -1,15 +1,13 @@
 //
-//  ViewController.h
+//  DDView.h
 //  ddos-detector
 //
-//  Created by Joanna Bitton on 4/15/17.
+//  Created by Joanna Bitton on 4/16/17.
 //  Copyright © 2017 Joanna Bitton. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
 
-@interface ViewController : NSViewController
-
+@interface DDView : NSView
 
 @end
-

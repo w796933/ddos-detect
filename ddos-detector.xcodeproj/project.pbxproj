@@ -9,12 +9,13 @@
 /* Begin PBXBuildFile section */
 		97AF48C41EA2D3AD002432FA /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97AF48C31EA2D3AD002432FA /* AppDelegate.mm */; };
 		97AF48C71EA2D3AD002432FA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 97AF48C61EA2D3AD002432FA /* main.m */; };
-		97AF48CA1EA2D3AD002432FA /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97AF48C91EA2D3AD002432FA /* ViewController.mm */; };
+		97AF48CA1EA2D3AD002432FA /* DDViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97AF48C91EA2D3AD002432FA /* DDViewController.mm */; };
 		97AF48CC1EA2D3AD002432FA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97AF48CB1EA2D3AD002432FA /* Assets.xcassets */; };
 		97AF48CF1EA2D3AD002432FA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97AF48CD1EA2D3AD002432FA /* Main.storyboard */; };
 		97AF48D71EA2D509002432FA /* PCAPAnalyzer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97AF48D61EA2D509002432FA /* PCAPAnalyzer.mm */; };
 		97AF48DD1EA2E96E002432FA /* libpcap.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 97AF48DB1EA2E96E002432FA /* libpcap.A.tbd */; };
 		97AF48DE1EA2E96E002432FA /* libpcap.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 97AF48DC1EA2E96E002432FA /* libpcap.tbd */; };
+		D9379F511EA3DC36009AA49A /* DDView.m in Sources */ = {isa = PBXBuildFile; fileRef = D9379F501EA3DC36009AA49A /* DDView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,15 +23,17 @@
 		97AF48C21EA2D3AD002432FA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		97AF48C31EA2D3AD002432FA /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		97AF48C61EA2D3AD002432FA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		97AF48C81EA2D3AD002432FA /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		97AF48C91EA2D3AD002432FA /* ViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
+		97AF48C81EA2D3AD002432FA /* DDViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDViewController.h; sourceTree = "<group>"; };
+		97AF48C91EA2D3AD002432FA /* DDViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DDViewController.mm; sourceTree = "<group>"; };
 		97AF48CB1EA2D3AD002432FA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97AF48CE1EA2D3AD002432FA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		97AF48D01EA2D3AD002432FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		97AF48D61EA2D509002432FA /* PCAPAnalyzer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PCAPAnalyzer.mm; sourceTree = "<group>"; };
-		97AF48D91EA2D559002432FA /* PCAPAnalyzer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PCAPAnalyzer.h; path = ../PCAPAnalyzer.h; sourceTree = "<group>"; };
+		97AF48D91EA2D559002432FA /* PCAPAnalyzer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PCAPAnalyzer.h; sourceTree = "<group>"; };
 		97AF48DB1EA2E96E002432FA /* libpcap.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpcap.A.tbd; path = usr/lib/libpcap.A.tbd; sourceTree = SDKROOT; };
 		97AF48DC1EA2E96E002432FA /* libpcap.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpcap.tbd; path = usr/lib/libpcap.tbd; sourceTree = SDKROOT; };
+		D9379F4F1EA3DC36009AA49A /* DDView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDView.h; sourceTree = "<group>"; };
+		D9379F501EA3DC36009AA49A /* DDView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,14 +69,13 @@
 		97AF48C11EA2D3AD002432FA /* ddos-detector */ = {
 			isa = PBXGroup;
 			children = (
-				97AF48D91EA2D559002432FA /* PCAPAnalyzer.h */,
+				D9379F4E1EA3DC1B009AA49A /* Views */,
+				D9379F4D1EA3126D009AA49A /* Controllers */,
+				D9379F4C1EA31258009AA49A /* PCAPAnalyzer */,
 				97AF48C21EA2D3AD002432FA /* AppDelegate.h */,
 				97AF48C31EA2D3AD002432FA /* AppDelegate.mm */,
-				97AF48C81EA2D3AD002432FA /* ViewController.h */,
-				97AF48C91EA2D3AD002432FA /* ViewController.mm */,
 				97AF48CB1EA2D3AD002432FA /* Assets.xcassets */,
 				97AF48CD1EA2D3AD002432FA /* Main.storyboard */,
-				97AF48D61EA2D509002432FA /* PCAPAnalyzer.mm */,
 				97AF48D01EA2D3AD002432FA /* Info.plist */,
 				97AF48C51EA2D3AD002432FA /* Supporting Files */,
 			);
@@ -95,6 +97,33 @@
 				97AF48DC1EA2E96E002432FA /* libpcap.tbd */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D9379F4C1EA31258009AA49A /* PCAPAnalyzer */ = {
+			isa = PBXGroup;
+			children = (
+				97AF48D91EA2D559002432FA /* PCAPAnalyzer.h */,
+				97AF48D61EA2D509002432FA /* PCAPAnalyzer.mm */,
+			);
+			name = PCAPAnalyzer;
+			sourceTree = "<group>";
+		};
+		D9379F4D1EA3126D009AA49A /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				97AF48C81EA2D3AD002432FA /* DDViewController.h */,
+				97AF48C91EA2D3AD002432FA /* DDViewController.mm */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		D9379F4E1EA3DC1B009AA49A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D9379F4F1EA3DC36009AA49A /* DDView.h */,
+				D9379F501EA3DC36009AA49A /* DDView.m */,
+			);
+			name = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -167,10 +196,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				97AF48CA1EA2D3AD002432FA /* ViewController.mm in Sources */,
+				97AF48CA1EA2D3AD002432FA /* DDViewController.mm in Sources */,
 				97AF48C71EA2D3AD002432FA /* main.m in Sources */,
 				97AF48C41EA2D3AD002432FA /* AppDelegate.mm in Sources */,
 				97AF48D71EA2D509002432FA /* PCAPAnalyzer.mm in Sources */,
+				D9379F511EA3DC36009AA49A /* DDView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,6 +348,7 @@
 				97AF48D51EA2D3AD002432FA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
