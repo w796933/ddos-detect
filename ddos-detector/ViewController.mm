@@ -7,15 +7,22 @@
 //
 
 #import "ViewController.h"
+#import "PCAPAnalyzer.h"
+
+#include <iostream>
+
+using namespace std;
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
-    // Do any additional setup after loading the view.
+    
+    PCAPAnalyzer *analyzer = [[PCAPAnalyzer alloc] init];
+    [analyzer analyze];
+    
+    
 }
-
 
 - (void)setRepresentedObject:(id)representedObject {
     [super setRepresentedObject:representedObject];
