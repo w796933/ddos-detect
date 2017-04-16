@@ -28,7 +28,7 @@
 		97AF48CE1EA2D3AD002432FA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		97AF48D01EA2D3AD002432FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		97AF48D61EA2D509002432FA /* PCAPAnalyzer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PCAPAnalyzer.mm; sourceTree = "<group>"; };
-		97AF48D91EA2D559002432FA /* PCAPAnalyzer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PCAPAnalyzer.h; path = ../PCAPAnalyzer.h; sourceTree = "<group>"; };
+		97AF48D91EA2D559002432FA /* PCAPAnalyzer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PCAPAnalyzer.h; sourceTree = "<group>"; };
 		97AF48DB1EA2E96E002432FA /* libpcap.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpcap.A.tbd; path = usr/lib/libpcap.A.tbd; sourceTree = SDKROOT; };
 		97AF48DC1EA2E96E002432FA /* libpcap.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpcap.tbd; path = usr/lib/libpcap.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -318,6 +318,7 @@
 				97AF48D51EA2D3AD002432FA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
