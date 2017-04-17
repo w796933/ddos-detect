@@ -779,6 +779,30 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
+                            <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" bezeled="NO" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="te6-tq-JDy">
+                                <rect key="frame" x="153" y="515" width="16" height="16"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            </progressIndicator>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RM5-cG-3Kb">
+                                <rect key="frame" x="41" y="508" width="97" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" id="0ef-Yh-6ZH">
+                                    <font key="font" size="15" name="PingFangTC-Thin"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="B03-rL-hYu">
+                                <rect key="frame" x="472" y="505" width="88" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Analyze" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5Sj-UM-sdS">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" size="12" name="PingFangTC-Ultralight"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="analyzeButtonTapped:" target="XfG-lQ-9wD" id="K5V-zy-PhS"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="o0d-uI-ZIl" firstAttribute="top" secondItem="IrS-6p-ei5" secondAttribute="bottom" constant="21" id="Dbw-q0-JPV"/>
@@ -791,7 +815,9 @@
                     </view>
                     <connections>
                         <outlet property="alertLabel" destination="IrS-6p-ei5" id="fhA-Iq-VGy"/>
+                        <outlet property="progressIndicator" destination="te6-tq-JDy" id="Sh4-TX-Eg9"/>
                         <outlet property="tableView" destination="UCL-ze-Eih" id="eRc-IV-9pl"/>
+                        <outlet property="timerLabel" destination="RM5-cG-3Kb" id="qlS-pu-wgu"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>

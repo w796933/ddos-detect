@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "PCAPAnalyzer.h"
+#import "DDViewController.h"
 
 #include <iostream>
 #include <string>
@@ -21,8 +22,11 @@
 #include <netinet/udp.h>
 #include <netinet/ip_icmp.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
 
 using namespace std;
+
+typedef NSDictionary NSAttack;
 
 typedef struct DDOSAttack {
     int protocol;
@@ -32,33 +36,60 @@ typedef struct DDOSAttack {
     u_int numPackets;
 } ddos_t;
 
+typedef struct LeastCount {
+    u_int numPackets;
+    time_t startTime;
+    string destIp;
+} count_t;
+
+#pragma mark - Globals
+
 static const u_int THRESHOLD = 100;
+static const u_int MAP_MAX_SIZE = 100000;
+static double progress = 0;
+static u_int counter = 0;
+static off_t fSize;
 
 @interface PCAPAnalyzer ()
 
-@property (nonatomic, retain) NSMutableDictionary *ddosMap;
+@property (atomic, retain) NSMutableArray<NSAttack *> *attacks;
 @property (nonatomic) map<string, ddos_t> hm;
+@property (nonatomic) LeastCount least;
 
 @end
 
 @implementation PCAPAnalyzer
 
+off_t fsize(const char *filename) {
+    struct stat st;
+    
+    if (stat(filename, &st) == 0)
+        return st.st_size;
+    
+    return -1;
+}
+
 - (instancetype)init
 {
     self = [super init];
     if (self) {
-        _thisClass = self;
-        _ddosMap = [[NSMutableDictionary alloc] init];
+        __Self = self;
+        _attacks = [NSMutableArray new];
+        _least = { .startTime = LONG_MAX, .numPackets = UINT_MAX, .destIp = "" };
     }
     return self;
 }
 
-- (void) analyze {
++ (double) progress {
+    return progress;
+}
+
+- (void) analyze: (char *)filename {
     pcap_t *descr;
     char errbuf[PCAP_ERRBUF_SIZE];
-    
+    fSize = fsize("14pcap.pcap");
     // open capture file for offline processing
-    descr = pcap_open_offline("dirtjumper.pcap", errbuf);
+    descr = pcap_open_offline(filename, errbuf);
     if (descr == NULL) {
         cout << "pcap_open_offline() failed: " << errbuf << endl;
         return;
@@ -71,6 +102,11 @@ static const u_int THRESHOLD = 100;
         cout << "pcap_loop() failed: " << pcap_geterr(descr);
         return;
     }
+    
+    dispatch_async(dispatch_get_main_queue(),^{
+        NSDictionary *dictionary = [NSDictionary dictionaryWithObject: self.attacks forKey: @"attacks"];
+        [[NSNotificationCenter defaultCenter] postNotificationName: packetFinish object: nil userInfo: dictionary];
+    });
     
     cout << "capture finished" << endl;
 }
@@ -89,24 +125,40 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
         inet_ntop(AF_INET, &(ipHeader->ip_src), sourceIp, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(ipHeader->ip_dst), destIp, INET_ADDRSTRLEN);
         
-        //cout << sourceIp << " >> " << destIp << " @ " << pkthdr->ts.tv_sec << endl;
+//        cout << sourceIp << " >> " << destIp << " @ " << pkthdr->ts.tv_sec << endl;
+        
+//        dispatch_async(dispatch_get_main_queue(),^{
+//            globalPacketCounter++;
+//            NSDictionary *dictionary = [NSDictionary dictionaryWithObject: [NSNumber numberWithUnsignedInteger:globalPacketCounter ] forKey: @"counter"];
+//            [[NSNotificationCenter defaultCenter] postNotificationName: packetEvent object: nil userInfo: dictionary];
+//        });
 
+        counter++;
+        double p = (((double)counter) + 1.0) / ((double)fSize);
+        progress = p;
+        
         attack.protocol = ipHeader->ip_p;
         [attack.sourceIps addObject: [NSString stringWithCString: sourceIp encoding: NSASCIIStringEncoding]];
         attack.startTime = pkthdr->ts.tv_sec;
         attack.endTime = pkthdr->ts.tv_sec;
         attack.numPackets = 1;
         
-        string dest(destIp);
-        // this should be illegal
-        [_thisClass populateMap: attack destination: destIp];
+        // using an extra reference to self in order to call objc method
+        [__Self populateMap: attack destination: destIp];
     }
 }
 
 - (void) populateMap: (DDOSAttack) attack destination: (char *) destIp {
     string dest(destIp);
+    // referecing property using self does not work, no idea why
     if (_hm.find(dest) == _hm.end()) {
-        _hm[dest] = attack;
+        // SpaceSaving: replace oldest item with least count
+        if (_hm.size() == MAP_MAX_SIZE) {
+            _hm[_least.destIp] = attack;
+        } else {
+            // map still has space, we're good
+            _hm[dest] = attack;
+        }
     } else {
         DDOSAttack da = _hm[dest];
         if (da.startTime == attack.startTime) {
@@ -115,17 +167,20 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
             da.protocol = da.protocol != attack.protocol ? attack.protocol : da.protocol;
         } else {
             if (da.numPackets >= THRESHOLD && (attack.startTime - da.startTime == 1)) {
-                cout << " >> " << destIp << " @ " << da.startTime << endl;
                 NSMutableDictionary *att = [self cStructToDict:da].mutableCopy;
                 [att setObject: [NSString stringWithCString:destIp encoding:NSUTF8StringEncoding] forKey:@"destIp"];
-                NSDictionary *dictionary = [NSDictionary dictionaryWithObject: att forKey: @"attack"];
-                [[NSNotificationCenter defaultCenter] postNotificationName: attackDetectedEvent object: nil userInfo: dictionary];
+                [self.attacks addObject:att];
             }
             da.protocol = attack.protocol;
             da.startTime = attack.startTime;
-            da.endTime = attack.endTime; // you don't really need end time...we are concerned with 1 sec periods only
+            da.endTime = attack.endTime;
             da.numPackets = 1;
             [da.sourceIps removeAllObjects];
+            [da.sourceIps addObject:[[attack.sourceIps allObjects] objectAtIndex:0]];
+        }
+        // find the "least" element
+        if (da.startTime < _least.startTime && da.numPackets < _least.numPackets) {
+            _least = { .startTime = da.startTime, .numPackets = da.numPackets, .destIp = dest };
         }
         // re-populate
         _hm[dest] = da;

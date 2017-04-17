@@ -10,6 +10,10 @@
 
 @interface DDViewController : NSViewController<NSTableViewDelegate, NSTableViewDataSource>
 
+@property (weak) IBOutlet NSTextField *alertLabel;
+@property (weak) IBOutlet NSTableView *tableView;
+@property (weak) IBOutlet NSProgressIndicator *progressIndicator;
+@property (weak) IBOutlet NSTextField *timerLabel;
 
 @end
 

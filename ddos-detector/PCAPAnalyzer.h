@@ -12,11 +12,17 @@
 #import <Cocoa/Cocoa.h>
 
 static NSString *attackDetectedEvent = @"DDOSAttackDetected";
-static id _thisClass;
+static NSString *packetEvent = @"PacketReceived";
+static NSString *packetFinish = @"PacketsFinished";
+
+static id __Self;
 
 @interface PCAPAnalyzer : NSObject
 
-- (void) analyze;
+@property (weak, nonatomic) id delegate;
+
++ (double) progress;
+- (void) analyze: (char *)filename;
 
 @end
 

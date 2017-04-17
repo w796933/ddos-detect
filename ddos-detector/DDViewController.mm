@@ -22,11 +22,10 @@ static const NSString *timeCellId = @"PacketNumberCellID";
 
 @interface DDViewController ()
 
-@property (weak) IBOutlet NSTextField *alertLabel;
-@property (weak) IBOutlet NSTableView *tableView;
-
 @property (nonatomic, retain) PCAPAnalyzer *analyzer;
-@property (nonatomic, retain) NSMutableArray<NSAttack *> *attacks;
+@property (atomic, retain) NSMutableArray<NSAttack *> *attacks;
+@property (nonatomic, assign) CFTimeInterval ticks;
+@property (nonatomic, retain) NSTimer *timer;
 
 @end
 
@@ -41,22 +40,32 @@ static const NSString *timeCellId = @"PacketNumberCellID";
     return self;
 }
 
+#pragma mark - View LifeCycle
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.attacks = [NSMutableArray new];
+    [self.progressIndicator setMinValue: 0.0];
+    [self.progressIndicator setMaxValue: 1.0];
+    
     PCAPAnalyzer *analyzer = [[PCAPAnalyzer alloc] init];
+    analyzer.delegate = self;
     self.analyzer = analyzer;
+
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(receiveAttackNotification:)
-                                                 name:attackDetectedEvent
+                                             selector:@selector(receivePacketNotification:)
+                                                 name:packetEvent
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(endPacketNotification:)
+                                                 name:packetFinish
                                                object:nil];
 }
 
 - (void) viewDidAppear  {
     [super viewDidAppear];
-    [self.analyzer analyze];
 }
 
 - (void)setRepresentedObject:(id)representedObject {
@@ -65,14 +74,21 @@ static const NSString *timeCellId = @"PacketNumberCellID";
     // Update the view, if already loaded.
 }
 
-- (void) receiveAttackNotification: (NSNotification *) notification {
-    static int counter = 0;
-    counter++;
+#pragma mark - Notifications
+
+- (void) receivePacketNotification: (NSNotification *) notification {
     NSDictionary *dict = [notification userInfo];
-    NSAttack *attack = [dict objectForKey:@"attack"];
-    [self.attacks addObject:attack];
-    [self.alertLabel setStringValue: [NSString stringWithFormat:@"DDoS Attacks: %d", counter]];
+    NSNumber *n = [dict objectForKey: @"counter"];
+    [self.alertLabel setStringValue: [NSString stringWithFormat: @"%@", n]];
+}
+
+- (void) endPacketNotification: (NSNotification *) notification {
+    NSDictionary *dict = [notification userInfo];
+    self.attacks = [dict objectForKey: @"attacks"];
+    [self.alertLabel setStringValue: @"capture finished"];
+    [self.progressIndicator setDoubleValue: 1.0];
     [self.tableView reloadData];
+    [self.timer invalidate];
 }
 
 #pragma mark - NSTableView
@@ -80,14 +96,14 @@ static const NSString *timeCellId = @"PacketNumberCellID";
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
     NSAttack *attack = [self.attacks objectAtIndex:rowIndex];
     if ([aTableColumn.identifier isEqualToString: destCellId.mutableCopy]) {
-        return (NSString *) [attack objectForKey:@"destIp"];
+        return (NSString *) [attack objectForKey: @"destIp"];
     }
     if ([aTableColumn.identifier isEqualToString: protocolCellId.mutableCopy]) {
-        return (NSString *) [attack objectForKey:@"protocol"];
+        return (NSString *) [attack objectForKey: @"protocol"];
     }
     if ([aTableColumn.identifier isEqualToString:sourceCellId.mutableCopy]) {
         NSMutableString *ips = @"".mutableCopy;
-        for (NSString *ip in (NSMutableSet *)[attack objectForKey:@"sourceIps"]) {
+        for (NSString *ip in (NSMutableSet *)[attack objectForKey: @"sourceIps"]) {
             [ips appendString:ip];
             [ips appendString:@","];
         }
@@ -105,7 +121,31 @@ static const NSString *timeCellId = @"PacketNumberCellID";
     return self.attacks.count;
 }
 
+#pragma mark - View Actions
 
+- (IBAction)analyzeButtonTapped:(id)sender {
+    self.timer = [NSTimer scheduledTimerWithTimeInterval: 0.1 target: self selector: @selector(timerTick:) userInfo: nil repeats:YES];
+    [self.attacks removeAllObjects];
+    [self.alertLabel setStringValue: @"started capture"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        char filename[] = "14pcap.pcap";
+        [self.analyzer analyze: filename];
+    });
+}
+
+#pragma mark - Timer
+
+- (void)timerTick:(NSTimer *)timer
+{
+    // Timers are not guaranteed to tick at the nominal rate specified, so this isn't technically accurate.
+    // However, this is just an example to demonstrate how to stop some ongoing activity, so we can live with that inaccuracy.
+    _ticks += 0.1;
+    double seconds = fmod(_ticks, 60.0);
+    double minutes = fmod(trunc(_ticks / 60.0), 60.0);
+    double hours = trunc(_ticks / 3600.0);
+    [self.progressIndicator setDoubleValue:[PCAPAnalyzer progress] * 100.0];
+    [self.timerLabel setStringValue: [NSString stringWithFormat: @"%02.0f:%02.0f:%04.1f", hours, minutes, seconds]];
+}
 
 
 @end
