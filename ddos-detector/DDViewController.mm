@@ -86,6 +86,7 @@ static const NSString *timeCellId = @"PacketNumberCellID";
 }
 
 - (void) endPacketNotification: (NSNotification *) notification {
+    self.alertButton.enabled = true;
     NSDictionary *dict = [notification userInfo];
     self.attacks = [dict objectForKey: @"attacks"];
     [self.alertLabel setStringValue: @"capture finished"];
@@ -151,12 +152,13 @@ static const NSString *timeCellId = @"PacketNumberCellID";
 - (IBAction)analyzeButtonTapped:(id)sender {
     _ticks = 0.0;
     [self.progressIndicator setDoubleValue:0.0];
+    self.alertButton.enabled = false;
     [self.mapView removeAnnotations:self.mapView.annotations];
     self.timer = [NSTimer scheduledTimerWithTimeInterval: 0.1 target: self selector: @selector(timerTick:) userInfo: nil repeats:YES];
     [self.attacks removeAllObjects];
     [self.alertLabel setStringValue: @"started capture..."];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        char filename[] = "dirtjumper.pcap";
+        char filename[] = "14pcap.pcap";
         [self.analyzer analyze: filename];
     });
 }
