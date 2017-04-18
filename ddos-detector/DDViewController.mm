@@ -8,6 +8,7 @@
 
 #import "DDViewController.h"
 #import "PCAPAnalyzer.h"
+#import "AFNetworking.h"
 
 #include <iostream>
 
@@ -26,6 +27,7 @@ static const NSString *timeCellId = @"PacketNumberCellID";
 @property (atomic, retain) NSMutableArray<NSAttack *> *attacks;
 @property (nonatomic, assign) CFTimeInterval ticks;
 @property (nonatomic, retain) NSTimer *timer;
+@property (nonatomic, retain) NSMutableSet *ips;
 
 @end
 
@@ -47,6 +49,7 @@ static const NSString *timeCellId = @"PacketNumberCellID";
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.attacks = [NSMutableArray new];
+    self.ips = [NSMutableSet new];
     [self.progressIndicator setMinValue: 0.0];
     [self.progressIndicator setMaxValue: 1.0];
     
@@ -86,6 +89,28 @@ static const NSString *timeCellId = @"PacketNumberCellID";
     NSDictionary *dict = [notification userInfo];
     self.attacks = [dict objectForKey: @"attacks"];
     [self.alertLabel setStringValue: @"capture finished"];
+    for (NSAttack *attack in self.attacks) {
+        for (NSString *ip in [attack objectForKey:@"sourceIps"]) {
+            [self.ips addObject:ip];
+        }
+    }
+    NSURL *baseURL = [NSURL URLWithString:@"http://ip-api.com/json/"];
+    AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
+    for (NSString *ip in self.ips) {
+        [manager GET: ip parameters: nil success: ^(NSURLSessionDataTask *task, id responseObject) {
+             if (responseObject[@"city"] != nil) {
+                 CLLocationCoordinate2D coord;
+                 coord.latitude = ((NSNumber *) responseObject[@"lat"]).doubleValue;
+                 coord.longitude = ((NSNumber *) responseObject[@"lon"]).doubleValue;
+                 MKPointAnnotation *point = [MKPointAnnotation new];
+                 point.coordinate = coord;
+                 [self.mapView addAnnotation: point];
+             }
+        }failure:^(NSURLSessionDataTask *task, NSError *error) {
+             NSLog(@"Failure: %@", error);
+        }];
+    }
+    
     [self.progressIndicator setDoubleValue: 1.0];
     [self.tableView reloadData];
     [self.timer invalidate];
@@ -124,11 +149,14 @@ static const NSString *timeCellId = @"PacketNumberCellID";
 #pragma mark - View Actions
 
 - (IBAction)analyzeButtonTapped:(id)sender {
+    _ticks = 0.0;
+    [self.progressIndicator setDoubleValue:0.0];
+    [self.mapView removeAnnotations:self.mapView.annotations];
     self.timer = [NSTimer scheduledTimerWithTimeInterval: 0.1 target: self selector: @selector(timerTick:) userInfo: nil repeats:YES];
     [self.attacks removeAllObjects];
-    [self.alertLabel setStringValue: @"started capture"];
+    [self.alertLabel setStringValue: @"started capture..."];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        char filename[] = "14pcap.pcap";
+        char filename[] = "dirtjumper.pcap";
         [self.analyzer analyze: filename];
     });
 }

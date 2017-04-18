@@ -111,7 +111,7 @@ off_t fsize(const char *filename) {
     cout << "capture finished" << endl;
 }
 
-void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_char* packet) {
+void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_char* packet) {;
     const struct ether_header* ethernetHeader;
     const struct ip* ipHeader;
     char sourceIp[INET_ADDRSTRLEN];
@@ -138,7 +138,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
         progress = p;
         
         attack.protocol = ipHeader->ip_p;
-        [attack.sourceIps addObject: [NSString stringWithCString: sourceIp encoding: NSASCIIStringEncoding]];
+        [attack.sourceIps addObject: [NSString stringWithCString: sourceIp encoding: NSUTF8StringEncoding]];
         attack.startTime = pkthdr->ts.tv_sec;
         attack.endTime = pkthdr->ts.tv_sec;
         attack.numPackets = 1;

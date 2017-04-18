@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <MapKit/MapKit.h>
 
 @interface DDViewController : NSViewController<NSTableViewDelegate, NSTableViewDataSource>
 
@@ -14,6 +15,8 @@
 @property (weak) IBOutlet NSTableView *tableView;
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 @property (weak) IBOutlet NSTextField *timerLabel;
+@property (weak) IBOutlet NSButton *alertButton;
+@property (weak) IBOutlet MKMapView *mapView;
 
 @end
 

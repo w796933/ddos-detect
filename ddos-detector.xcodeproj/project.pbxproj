@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		946984A819C352E4C2F33218 /* libPods-ddos-detector.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77E11AC8629A6120313EC362 /* libPods-ddos-detector.a */; };
 		97AF48C41EA2D3AD002432FA /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97AF48C31EA2D3AD002432FA /* AppDelegate.mm */; };
 		97AF48C71EA2D3AD002432FA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 97AF48C61EA2D3AD002432FA /* main.m */; };
 		97AF48CA1EA2D3AD002432FA /* DDViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97AF48C91EA2D3AD002432FA /* DDViewController.mm */; };
@@ -16,9 +17,12 @@
 		97AF48DD1EA2E96E002432FA /* libpcap.A.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 97AF48DB1EA2E96E002432FA /* libpcap.A.tbd */; };
 		97AF48DE1EA2E96E002432FA /* libpcap.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 97AF48DC1EA2E96E002432FA /* libpcap.tbd */; };
 		D9379F511EA3DC36009AA49A /* DDView.m in Sources */ = {isa = PBXBuildFile; fileRef = D9379F501EA3DC36009AA49A /* DDView.m */; };
+		D9379F581EA58AB4009AA49A /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9379F571EA58AB4009AA49A /* MapKit.framework */; };
+		D9379F5A1EA58AB8009AA49A /* libAFNetworking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9379F591EA58AB8009AA49A /* libAFNetworking.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		77E11AC8629A6120313EC362 /* libPods-ddos-detector.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ddos-detector.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AF48BF1EA2D3AD002432FA /* ddos-detector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ddos-detector.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AF48C21EA2D3AD002432FA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		97AF48C31EA2D3AD002432FA /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
@@ -32,8 +36,12 @@
 		97AF48D91EA2D559002432FA /* PCAPAnalyzer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PCAPAnalyzer.h; sourceTree = "<group>"; };
 		97AF48DB1EA2E96E002432FA /* libpcap.A.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpcap.A.tbd; path = usr/lib/libpcap.A.tbd; sourceTree = SDKROOT; };
 		97AF48DC1EA2E96E002432FA /* libpcap.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpcap.tbd; path = usr/lib/libpcap.tbd; sourceTree = SDKROOT; };
+		99E464AFE120361F380A8937 /* Pods-ddos-detector.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ddos-detector.release.xcconfig"; path = "Pods/Target Support Files/Pods-ddos-detector/Pods-ddos-detector.release.xcconfig"; sourceTree = "<group>"; };
+		B17D90024CACC0E7CD745919 /* Pods-ddos-detector.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ddos-detector.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ddos-detector/Pods-ddos-detector.debug.xcconfig"; sourceTree = "<group>"; };
 		D9379F4F1EA3DC36009AA49A /* DDView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDView.h; sourceTree = "<group>"; };
 		D9379F501EA3DC36009AA49A /* DDView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDView.m; sourceTree = "<group>"; };
+		D9379F571EA58AB4009AA49A /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		D9379F591EA58AB8009AA49A /* libAFNetworking.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAFNetworking.a; path = "../../../Library/Developer/Xcode/DerivedData/ddos-detector-gkgdtadsbprhxdbdonkaiqaewegl/Build/Products/Debug/AFNetworking/libAFNetworking.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,20 +49,33 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9379F5A1EA58AB8009AA49A /* libAFNetworking.a in Frameworks */,
+				D9379F581EA58AB4009AA49A /* MapKit.framework in Frameworks */,
 				97AF48DD1EA2E96E002432FA /* libpcap.A.tbd in Frameworks */,
 				97AF48DE1EA2E96E002432FA /* libpcap.tbd in Frameworks */,
+				946984A819C352E4C2F33218 /* libPods-ddos-detector.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5B1E442981E7F351B0AD1B85 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				B17D90024CACC0E7CD745919 /* Pods-ddos-detector.debug.xcconfig */,
+				99E464AFE120361F380A8937 /* Pods-ddos-detector.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		97AF48B61EA2D3AD002432FA = {
 			isa = PBXGroup;
 			children = (
 				97AF48C11EA2D3AD002432FA /* ddos-detector */,
 				97AF48C01EA2D3AD002432FA /* Products */,
 				97AF48DA1EA2E96E002432FA /* Frameworks */,
+				5B1E442981E7F351B0AD1B85 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -93,8 +114,11 @@
 		97AF48DA1EA2E96E002432FA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D9379F591EA58AB8009AA49A /* libAFNetworking.a */,
+				D9379F571EA58AB4009AA49A /* MapKit.framework */,
 				97AF48DB1EA2E96E002432FA /* libpcap.A.tbd */,
 				97AF48DC1EA2E96E002432FA /* libpcap.tbd */,
+				77E11AC8629A6120313EC362 /* libPods-ddos-detector.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -133,9 +157,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 97AF48D31EA2D3AD002432FA /* Build configuration list for PBXNativeTarget "ddos-detector" */;
 			buildPhases = (
+				A515C50CF1DB779ECA8DDB8E /* [CP] Check Pods Manifest.lock */,
 				97AF48BB1EA2D3AD002432FA /* Sources */,
 				97AF48BC1EA2D3AD002432FA /* Frameworks */,
 				97AF48BD1EA2D3AD002432FA /* Resources */,
+				7B40C231944DEFB00F40F446 /* [CP] Embed Pods Frameworks */,
+				9D850480026C63A85F85AF8F /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -190,6 +217,54 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		7B40C231944DEFB00F40F446 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ddos-detector/Pods-ddos-detector-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9D850480026C63A85F85AF8F /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ddos-detector/Pods-ddos-detector-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A515C50CF1DB779ECA8DDB8E /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		97AF48BB1EA2D3AD002432FA /* Sources */ = {
@@ -307,6 +382,7 @@
 		};
 		97AF48D41EA2D3AD002432FA /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B17D90024CACC0E7CD745919 /* Pods-ddos-detector.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -319,6 +395,7 @@
 		};
 		97AF48D51EA2D3AD002432FA /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 99E464AFE120361F380A8937 /* Pods-ddos-detector.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
