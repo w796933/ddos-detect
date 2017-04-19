@@ -14,17 +14,20 @@
 
 using namespace std;
 
-typedef NSDictionary NSAttack;
+typedef NSMutableDictionary DDAttack;
 
 static const NSString *destCellId = @"DestCellID";
 static const NSString *sourceCellId = @"SourceCellID";
 static const NSString *protocolCellId = @"ProtocolCellID";
-static const NSString *timeCellId = @"PacketNumberCellID";
+static const NSString *packetNumCellId = @"PacketNumberCellID";
+static const NSString *timeCellId = @"TimeCellID";
+static const NSString *ratioCellId = @"RatioCellID";
+
 
 @interface DDViewController ()
 
 @property (nonatomic, retain) PCAPAnalyzer *analyzer;
-@property (atomic, retain) NSMutableArray<NSAttack *> *attacks;
+@property (atomic, retain) NSMutableArray<DDAttack *> *attacks;
 @property (nonatomic, assign) CFTimeInterval ticks;
 @property (nonatomic, retain) NSTimer *timer;
 @property (nonatomic, retain) NSMutableSet *ips;
@@ -53,7 +56,7 @@ static const NSString *timeCellId = @"PacketNumberCellID";
     [self.progressIndicator setMinValue: 0.0];
     [self.progressIndicator setMaxValue: 1.0];
     
-    PCAPAnalyzer *analyzer = [[PCAPAnalyzer alloc] init];
+    PCAPAnalyzer *analyzer = [PCAPAnalyzer new];
     analyzer.delegate = self;
     self.analyzer = analyzer;
 
@@ -77,6 +80,10 @@ static const NSString *timeCellId = @"PacketNumberCellID";
     // Update the view, if already loaded.
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 #pragma mark - Notifications
 
 - (void) receivePacketNotification: (NSNotification *) notification {
@@ -90,28 +97,28 @@ static const NSString *timeCellId = @"PacketNumberCellID";
     NSDictionary *dict = [notification userInfo];
     self.attacks = [dict objectForKey: @"attacks"];
     [self.alertLabel setStringValue: @"capture finished"];
-    for (NSAttack *attack in self.attacks) {
+    for (DDAttack *attack in self.attacks) {
         for (NSString *ip in [attack objectForKey:@"sourceIps"]) {
             [self.ips addObject:ip];
         }
     }
-    NSURL *baseURL = [NSURL URLWithString:@"http://ip-api.com/json/"];
-    AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
-    for (NSString *ip in self.ips) {
-        [manager GET: ip parameters: nil success: ^(NSURLSessionDataTask *task, id responseObject) {
-             if (responseObject[@"city"] != nil) {
-                 CLLocationCoordinate2D coord;
-                 coord.latitude = ((NSNumber *) responseObject[@"lat"]).doubleValue;
-                 coord.longitude = ((NSNumber *) responseObject[@"lon"]).doubleValue;
-                 MKPointAnnotation *point = [MKPointAnnotation new];
-                 point.coordinate = coord;
-                 [self.mapView addAnnotation: point];
-             }
-        }failure:^(NSURLSessionDataTask *task, NSError *error) {
-             NSLog(@"Failure: %@", error);
-        }];
-    }
-    
+//    NSURL *baseURL = [NSURL URLWithString:@"http://ip-api.com/json/"];
+//    AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
+//    for (NSString *ip in self.ips) {
+//        [manager GET: ip parameters: nil success: ^(NSURLSessionDataTask *task, id responseObject) {
+//             if (responseObject[@"city"] != nil) {
+//                 CLLocationCoordinate2D coord;
+//                 coord.latitude = ((NSNumber *) responseObject[@"lat"]).doubleValue;
+//                 coord.longitude = ((NSNumber *) responseObject[@"lon"]).doubleValue;
+//                 MKPointAnnotation *point = [MKPointAnnotation new];
+//                 point.coordinate = coord;
+//                 [self.mapView addAnnotation: point];
+//             }
+//        } failure:^(NSURLSessionDataTask *task, NSError *error) {
+//             NSLog(@"Failure: %@", error);
+//        }];
+//    }
+    [self.analyzer filterAttacks: self.attacks];
     [self.progressIndicator setDoubleValue: 1.0];
     [self.tableView reloadData];
     [self.timer invalidate];
@@ -120,7 +127,7 @@ static const NSString *timeCellId = @"PacketNumberCellID";
 #pragma mark - NSTableView
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-    NSAttack *attack = [self.attacks objectAtIndex:rowIndex];
+    DDAttack *attack = [self.attacks objectAtIndex:rowIndex];
     if ([aTableColumn.identifier isEqualToString: destCellId.mutableCopy]) {
         return (NSString *) [attack objectForKey: @"destIp"];
     }
@@ -131,13 +138,24 @@ static const NSString *timeCellId = @"PacketNumberCellID";
         NSMutableString *ips = @"".mutableCopy;
         for (NSString *ip in (NSMutableSet *)[attack objectForKey: @"sourceIps"]) {
             [ips appendString:ip];
-            [ips appendString:@","];
+            [ips appendString:@"|"];
         }
         [ips deleteCharactersInRange:NSMakeRange([ips length] - 1, 1)];
         return ips;
     }
-    if ([aTableColumn.identifier isEqualToString: timeCellId.mutableCopy]) {
+    if ([aTableColumn.identifier isEqualToString: packetNumCellId.mutableCopy]) {
         return [NSString stringWithFormat:@"%@", [attack objectForKey:@"numPackets"]];
+    }
+    if ([aTableColumn.identifier isEqualToString: timeCellId.mutableCopy]) {
+        NSTimeInterval timestamp = (NSTimeInterval)((NSNumber *)[attack objectForKey:@"endTime"]).unsignedIntegerValue;
+        NSDate *updatetimestamp = [NSDate dateWithTimeIntervalSince1970:timestamp];
+        NSDateFormatter *format = [NSDateFormatter new];
+        [format setDateFormat:@"MMM dd, HH:mm"];
+        NSString *dateString = [format stringFromDate: updatetimestamp];
+        return [NSString stringWithFormat:@"%@", dateString];
+    }
+    if ([aTableColumn.identifier isEqualToString: ratioCellId.mutableCopy]) {
+        return [NSString stringWithFormat:@"%.1f", ((NSNumber *)[attack objectForKey:@"numPackets"]).doubleValue / (double)((NSArray *)[attack objectForKey:@"sourceIps"]).count];
     }
     return nil;
 }
@@ -176,6 +194,5 @@ static const NSString *timeCellId = @"PacketNumberCellID";
     [self.progressIndicator setDoubleValue:[PCAPAnalyzer progress] * 100.0];
     [self.timerLabel setStringValue: [NSString stringWithFormat: @"%02.0f:%02.0f:%04.1f", hours, minutes, seconds]];
 }
-
 
 @end

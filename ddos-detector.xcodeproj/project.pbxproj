@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		946984A819C352E4C2F33218 /* libPods-ddos-detector.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77E11AC8629A6120313EC362 /* libPods-ddos-detector.a */; };
+		16D0D81D092EAD985F1EAB47 /* Pods_ddos_detector.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 069FBD3CC0EBA7645286740E /* Pods_ddos_detector.framework */; };
 		97AF48C41EA2D3AD002432FA /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97AF48C31EA2D3AD002432FA /* AppDelegate.mm */; };
 		97AF48C71EA2D3AD002432FA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 97AF48C61EA2D3AD002432FA /* main.m */; };
 		97AF48CA1EA2D3AD002432FA /* DDViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97AF48C91EA2D3AD002432FA /* DDViewController.mm */; };
@@ -18,11 +18,11 @@
 		97AF48DE1EA2E96E002432FA /* libpcap.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 97AF48DC1EA2E96E002432FA /* libpcap.tbd */; };
 		D9379F511EA3DC36009AA49A /* DDView.m in Sources */ = {isa = PBXBuildFile; fileRef = D9379F501EA3DC36009AA49A /* DDView.m */; };
 		D9379F581EA58AB4009AA49A /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9379F571EA58AB4009AA49A /* MapKit.framework */; };
-		D9379F5A1EA58AB8009AA49A /* libAFNetworking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9379F591EA58AB8009AA49A /* libAFNetworking.a */; };
+		D9379F621EA6E1D1009AA49A /* OrderedDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = D9379F611EA6E1D1009AA49A /* OrderedDictionary.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		77E11AC8629A6120313EC362 /* libPods-ddos-detector.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ddos-detector.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		069FBD3CC0EBA7645286740E /* Pods_ddos_detector.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ddos_detector.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AF48BF1EA2D3AD002432FA /* ddos-detector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ddos-detector.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AF48C21EA2D3AD002432FA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		97AF48C31EA2D3AD002432FA /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
@@ -42,6 +42,9 @@
 		D9379F501EA3DC36009AA49A /* DDView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDView.m; sourceTree = "<group>"; };
 		D9379F571EA58AB4009AA49A /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		D9379F591EA58AB8009AA49A /* libAFNetworking.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAFNetworking.a; path = "../../../Library/Developer/Xcode/DerivedData/ddos-detector-gkgdtadsbprhxdbdonkaiqaewegl/Build/Products/Debug/AFNetworking/libAFNetworking.a"; sourceTree = "<group>"; };
+		D9379F5B1EA5D78B009AA49A /* Charts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Charts.framework; path = "../../../Library/Developer/Xcode/DerivedData/ddos-detector-gkgdtadsbprhxdbdonkaiqaewegl/Build/Products/Debug/Charts/Charts.framework"; sourceTree = "<group>"; };
+		D9379F601EA6E1D1009AA49A /* OrderedDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OrderedDictionary.h; path = "../../../../Downloads/OrderedDictionary-master/OrderedDictionary/OrderedDictionary.h"; sourceTree = "<group>"; };
+		D9379F611EA6E1D1009AA49A /* OrderedDictionary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OrderedDictionary.m; path = "../../../../Downloads/OrderedDictionary-master/OrderedDictionary/OrderedDictionary.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,11 +52,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9379F5A1EA58AB8009AA49A /* libAFNetworking.a in Frameworks */,
 				D9379F581EA58AB4009AA49A /* MapKit.framework in Frameworks */,
 				97AF48DD1EA2E96E002432FA /* libpcap.A.tbd in Frameworks */,
 				97AF48DE1EA2E96E002432FA /* libpcap.tbd in Frameworks */,
-				946984A819C352E4C2F33218 /* libPods-ddos-detector.a in Frameworks */,
+				16D0D81D092EAD985F1EAB47 /* Pods_ddos_detector.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +92,7 @@
 		97AF48C11EA2D3AD002432FA /* ddos-detector */ = {
 			isa = PBXGroup;
 			children = (
+				D9379F631EA6E1D6009AA49A /* Classes */,
 				D9379F4E1EA3DC1B009AA49A /* Views */,
 				D9379F4D1EA3126D009AA49A /* Controllers */,
 				D9379F4C1EA31258009AA49A /* PCAPAnalyzer */,
@@ -114,11 +117,12 @@
 		97AF48DA1EA2E96E002432FA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D9379F5B1EA5D78B009AA49A /* Charts.framework */,
 				D9379F591EA58AB8009AA49A /* libAFNetworking.a */,
 				D9379F571EA58AB4009AA49A /* MapKit.framework */,
 				97AF48DB1EA2E96E002432FA /* libpcap.A.tbd */,
 				97AF48DC1EA2E96E002432FA /* libpcap.tbd */,
-				77E11AC8629A6120313EC362 /* libPods-ddos-detector.a */,
+				069FBD3CC0EBA7645286740E /* Pods_ddos_detector.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -148,6 +152,15 @@
 				D9379F501EA3DC36009AA49A /* DDView.m */,
 			);
 			name = Views;
+			sourceTree = "<group>";
+		};
+		D9379F631EA6E1D6009AA49A /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				D9379F601EA6E1D1009AA49A /* OrderedDictionary.h */,
+				D9379F611EA6E1D1009AA49A /* OrderedDictionary.m */,
+			);
+			name = Classes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -274,6 +287,7 @@
 				97AF48CA1EA2D3AD002432FA /* DDViewController.mm in Sources */,
 				97AF48C71EA2D3AD002432FA /* main.m in Sources */,
 				97AF48C41EA2D3AD002432FA /* AppDelegate.mm in Sources */,
+				D9379F621EA6E1D1009AA49A /* OrderedDictionary.m in Sources */,
 				97AF48D71EA2D509002432FA /* PCAPAnalyzer.mm in Sources */,
 				D9379F511EA3DC36009AA49A /* DDView.m in Sources */,
 			);

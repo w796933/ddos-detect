@@ -15,14 +15,17 @@ static NSString *attackDetectedEvent = @"DDOSAttackDetected";
 static NSString *packetEvent = @"PacketReceived";
 static NSString *packetFinish = @"PacketsFinished";
 
-static id __Self;
+__unsafe_unretained static id __self;
 
 @interface PCAPAnalyzer : NSObject
 
 @property (weak, nonatomic) id delegate;
 
++ (time_t) startT;
++ (time_t) endT;
 + (double) progress;
 - (void) analyze: (char *)filename;
+- (void) filterAttacks: (NSArray *)attacks;
 
 @end
 
