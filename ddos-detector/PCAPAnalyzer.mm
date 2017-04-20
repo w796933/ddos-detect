@@ -28,10 +28,12 @@
 
 using namespace std;
 
+#pragma mark - typedef
+
 typedef NSMutableDictionary DDAttack;
-typedef NSMutableDictionary DDPair;
+typedef NSMutableDictionary DDPair; // ( destIp, sourceIps[] )
 typedef NSHashTable DDUniquePairs;
-typedef NSMapTable DDUniquePairsWithPackets;
+typedef NSMapTable DDUniquePairsMap;
 
 typedef struct DDOSAttack {
     int protocol;
@@ -50,9 +52,11 @@ typedef struct LeastCount {
 #pragma mark - Globals
 
 static const u_int THRESHOLD = 1000;
+static const u_int MIN_PACKETS_PER_INTERVAL = 6;
 static const u_int INTERVAL = 600; // 5 min
 static const u_int MAP_MAX_SIZE = 100000;
-static double progress = 0;
+
+static double_t progress = 0;
 static u_int counter = 0;
 static off_t fSize;
 static time_t startT;
@@ -62,6 +66,8 @@ static time_t endT;
 
 @property (nonatomic, retain) NSMutableArray<DDAttack *> *suspectAttacks;
 @property (nonatomic, retain) NSMutableSet<DDAttack *> *actualAttacks;
+@property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSNumber *> *pairsWithPackets;
+@property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSNumber *> *pairsWithCount;
 @property (nonatomic) map<string, ddos_t> hm;
 @property (nonatomic) LeastCount least;
 
@@ -85,6 +91,8 @@ off_t fsize(const char *filename) {
         __self = self;
         _suspectAttacks = [NSMutableArray new];
         _least = { .startTime = LONG_MAX, .numPackets = UINT_MAX, .destIp = "" };
+        _pairsWithPackets = [DDUniquePairsMap mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsCopyIn];
+        _pairsWithCount = [DDUniquePairsMap mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsCopyIn];
     }
     return self;
 }
@@ -143,14 +151,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
         ipHeader = (struct ip*)(packet + sizeof(struct ether_header));
         inet_ntop(AF_INET, &(ipHeader->ip_src), sourceIp, INET_ADDRSTRLEN);
         inet_ntop(AF_INET, &(ipHeader->ip_dst), destIp, INET_ADDRSTRLEN);
-        
-//        cout << sourceIp << " >> " << destIp << " @ " << pkthdr->ts.tv_sec << endl;
-        
-//        dispatch_async(dispatch_get_main_queue(),^{
-//            globalPacketCounter++;
-//            NSDictionary *dictionary = [NSDictionary dictionaryWithObject: [NSNumber numberWithUnsignedInteger:globalPacketCounter ] forKey: @"counter"];
-//            [[NSNotificationCenter defaultCenter] postNotificationName: packetEvent object: nil userInfo: dictionary];
-//        });
 
         if (counter == 0) startT = pkthdr->ts.tv_sec;
         endT = pkthdr->ts.tv_sec;
@@ -172,7 +172,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
 
 - (void) populateMap: (DDOSAttack) attack destination: (char *) destIp {
     string dest(destIp);
-    // referecing property using self does not work, no idea why
     if (_hm.find(dest) == _hm.end()) {
         // SpaceSaving: replace oldest item with least count
         if (_hm.size() == MAP_MAX_SIZE) {
@@ -227,7 +226,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
     u_long ratio = 0;
     // find max pp10min
     for (DDAttack *attack in attacks) {
-        NSNumber *time = ((NSNumber *)[attack objectForKey:@"endTime"]);
+        NSString *time = ((NSNumber *)[attack objectForKey:@"endTime"]).stringValue;
         if (timeline[time] == nil) {
             timeline[time] = [NSMutableArray new];
         }
@@ -243,16 +242,42 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
         NSString *timeString = ((NSNumber *)[attack objectForKey:@"endTime"]).stringValue;
         [((NSMutableArray *)timeline[timeString]) addObject:attack];
     }
-//    NSString *timeString;
-//    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-//    [dateFormat setDateFormat:@"MMM-dd-hh:mm"];
-//    NSDate *date = [NSDate dateWithTimeIntervalSince1970:((NSNumber *)[attack objectForKey:@"endTime"]).unsignedIntegerValue];
-//    timeString = [dateFormat stringFromDate:date];
     NSArray *sortedKeys = [[timeline allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
     NSArray *objects = [timeline objectsForKeys: sortedKeys notFoundMarker: [NSNull null]];
-    for (int i = 0; i < sortedKeys.count; i++) {
-        
+    for (int i = 0; i < sortedKeys.count - 1; i++) {
+        for (DDAttack *attack1 in objects[i]) {
+            for (DDAttack *attack2 in objects[i + 1]) { // compare adjacent
+                if (((NSNumber *)[attack2 objectForKey:@"endTime"]).unsignedIntegerValue -
+                    ((NSNumber *)[attack1 objectForKey:@"endTime"]).unsignedIntegerValue < INTERVAL) {
+                    continue;
+                } else {
+                    DDPair *pair = [DDPair new];
+                    [pair setObject:[attack2 objectForKey:@"destIp"] forKey:@"destIp"];
+                    [pair setObject:[attack2 objectForKey:@"sourceIps"] forKey:@"sourceIps"];
+                    if ([self attacksEqual:attack1 with: attack2] &&
+                        (((NSNumber *)[attack1 objectForKey:@"numPackets"]).unsignedIntegerValue >= THRESHOLD &&
+                         ((NSNumber *)[attack2 objectForKey:@"numPackets"]).unsignedIntegerValue >= THRESHOLD)) {
+                            if ([[self.pairsWithCount objectForKey:pair]  isEqual: @(MIN_PACKETS_PER_INTERVAL)]) {
+                                continue;
+                            }
+                            if ([self.pairsWithCount objectForKey:pair] == nil) {
+                                [self.pairsWithCount setObject:@0 forKey:pair];
+                            } else {
+                                [self.pairsWithCount setObject:@([self.pairsWithCount objectForKey:pair].integerValue + 1) forKey:pair];
+                                [self.pairsWithPackets setObject:[attack2 objectForKey:@"numPackets"] forKey:pair];
+                            }
+                    }
+                    else {
+                        if ([self.pairsWithCount objectForKey:pair] != nil) {
+                            [self.pairsWithCount setObject:@0 forKey:pair];
+                            [self.pairsWithCount setObject:@([self.pairsWithCount objectForKey:pair].integerValue - 1) forKey:pair];
+                        }
+                    }
+                }
+            }
+        }
     }
+    NSLog(@"%@", self.pairsWithCount);
 }
 
 - (BOOL) attacksEqual: (DDAttack *)att1 with:(DDAttack *)att2 {

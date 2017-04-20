@@ -11,7 +11,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-static NSString *attackDetectedEvent = @"DDOSAttackDetected";
+static NSString *attackDetectedEvent = @"AttackDetected";
 static NSString *packetEvent = @"PacketReceived";
 static NSString *packetFinish = @"PacketsFinished";
 
