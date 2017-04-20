@@ -10,7 +10,6 @@
 
 #import "PCAPAnalyzer.h"
 #import "DDViewController.h"
-#import "OrderedDictionary.h"
 
 #include <iostream>
 #include <string>
@@ -33,7 +32,7 @@ using namespace std;
 typedef NSMutableDictionary DDAttack;
 typedef NSMutableDictionary DDPair; // ( destIp, sourceIps[] )
 typedef NSHashTable DDUniquePairs;
-typedef NSMapTable DDUniquePairsMap;
+typedef NSMutableDictionary DDUniquePairsMap;
 
 typedef struct DDOSAttack {
     int protocol;
@@ -52,7 +51,7 @@ typedef struct LeastCount {
 #pragma mark - Globals
 
 static const u_int THRESHOLD = 1000;
-static const u_int MIN_PACKETS_PER_INTERVAL = 6;
+static const u_int MIN_PACKETS_PER_HOUR = 6;
 static const u_int INTERVAL = 600; // 5 min
 static const u_int MAP_MAX_SIZE = 100000;
 
@@ -66,7 +65,7 @@ static time_t endT;
 
 @property (nonatomic, retain) NSMutableArray<DDAttack *> *suspectAttacks;
 @property (nonatomic, retain) NSMutableSet<DDAttack *> *actualAttacks;
-@property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSNumber *> *pairsWithPackets;
+@property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSMutableArray<NSNumber *> *> *pairsWithPackets;
 @property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSNumber *> *pairsWithCount;
 @property (nonatomic) map<string, ddos_t> hm;
 @property (nonatomic) count_t least;
@@ -91,8 +90,8 @@ off_t fsize(const char *filename) {
         __self = self;
         _suspectAttacks = [NSMutableArray new];
         _least = { .startTime = LONG_MAX, .numPackets = UINT_MAX, .destIp = "" };
-        _pairsWithPackets = [DDUniquePairsMap mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsCopyIn];
-        _pairsWithCount = [DDUniquePairsMap mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsCopyIn];
+        _pairsWithPackets = [NSMutableDictionary new];
+        _pairsWithCount = [NSMutableDictionary new];
     }
     return self;
 }
@@ -255,16 +254,18 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
                     [pair setObject:[attack2 objectForKey:@"destIp"] forKey:@"destIp"];
                     [pair setObject:[attack2 objectForKey:@"sourceIps"] forKey:@"sourceIps"];
                     if ([self attacksEqual:attack1 with: attack2] &&
-                        (((NSNumber *)[attack1 objectForKey:@"numPackets"]).unsignedIntegerValue >= THRESHOLD &&
-                         ((NSNumber *)[attack2 objectForKey:@"numPackets"]).unsignedIntegerValue >= THRESHOLD)) {
-                            if ([[self.pairsWithCount objectForKey:pair]  isEqual: @(MIN_PACKETS_PER_INTERVAL)]) {
+                        (((NSNumber *)[attack1 objectForKey:@"numPackets"]).unsignedIntegerValue >= numPackThresh &&
+                         ((NSNumber *)[attack2 objectForKey:@"numPackets"]).unsignedIntegerValue >= numPackThresh)) {
+                            if ([[self.pairsWithCount objectForKey:pair]  isEqual: @(MIN_PACKETS_PER_HOUR)]) {
                                 continue;
                             }
                             if ([self.pairsWithCount objectForKey:pair] == nil) {
                                 [self.pairsWithCount setObject:@0 forKey:pair];
+                                NSMutableArray *arr = [NSMutableArray new];
+                                [self.pairsWithPackets setObject:arr forKey:pair];
                             } else {
                                 [self.pairsWithCount setObject:@([self.pairsWithCount objectForKey:pair].integerValue + 1) forKey:pair];
-                                [self.pairsWithPackets setObject:[attack2 objectForKey:@"numPackets"] forKey:pair];
+                                [[self.pairsWithPackets objectForKey:pair] addObject:[attack2 objectForKey:@"numPackets"]];
                             }
                     }
                     else {
@@ -277,7 +278,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
             }
         }
     }
-    NSLog(@"%@", self.pairsWithCount);
+    NSLog(@"%@", self.pairsWithPackets);
 }
 
 - (BOOL) attacksEqual: (DDAttack *)att1 with:(DDAttack *)att2 {

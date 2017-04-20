@@ -693,7 +693,7 @@
                                     <constraint firstAttribute="width" constant="229" id="YvY-36-P1e"/>
                                     <constraint firstAttribute="height" constant="31" id="t4l-2O-i13"/>
                                 </constraints>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="border" alignment="center" placeholderString="Label" drawsBackground="YES" id="Bo9-BL-DmZ">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" borderStyle="border" alignment="center" placeholderString="DDoS Detector" drawsBackground="YES" id="Bo9-BL-DmZ">
                                     <font key="font" size="16" name="PingFangTC-Thin"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
