@@ -143,7 +143,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
     const struct ip* ipHeader;
     char sourceIp[INET_ADDRSTRLEN];
     char destIp[INET_ADDRSTRLEN];
-    DDOSAttack attack;
+    ddos_t attack;
     attack.sourceIps = [NSMutableSet new];
     ethernetHeader = (struct ether_header*)packet;
     
@@ -170,7 +170,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
     }
 }
 
-- (void) populateMap: (DDOSAttack) attack destination: (char *) destIp {
+- (void) populateMap: (ddos_t) attack destination: (char *) destIp {
     string dest(destIp);
     if (_hm.find(dest) == _hm.end()) {
         // SpaceSaving: replace oldest item with least count
@@ -181,7 +181,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
             _hm[dest] = attack;
         }
     } else {
-        DDOSAttack da = _hm[dest];
+        ddos_t da = _hm[dest];
         if ((attack.startTime - da.startTime) <= INTERVAL) {
             da.numPackets++; // still the same second
             da.endTime = attack.startTime;
@@ -209,7 +209,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
     }
 }
 
-- (NSDictionary *) cStructToDict: (DDOSAttack) attack {
+- (NSDictionary *) cStructToDict: (ddos_t) attack {
     NSDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                           [NSNumber numberWithInt: attack.protocol], @"protocol",
                           [NSNumber numberWithInt: attack.numPackets], @"numPackets",
