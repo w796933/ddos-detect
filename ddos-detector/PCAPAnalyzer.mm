@@ -69,7 +69,7 @@ static time_t endT;
 @property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSNumber *> *pairsWithPackets;
 @property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSNumber *> *pairsWithCount;
 @property (nonatomic) map<string, ddos_t> hm;
-@property (nonatomic) LeastCount least;
+@property (nonatomic) count_t least;
 
 @end
 
