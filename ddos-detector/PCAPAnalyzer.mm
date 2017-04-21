@@ -50,6 +50,10 @@ off_t fsize(const char *filename) {
     return progress;
 }
 
++ (void) resetProgress {
+    progress = 0.0;
+}
+
 + (time_t) startT {
     return startT;
 }
@@ -60,7 +64,12 @@ off_t fsize(const char *filename) {
 
 - (void) analyze: (char *)filename {
     progress = 0.0;
+    counter = 0.0;
     [_suspectAttacks removeAllObjects];
+    [_actualAttacks removeAllObjects];
+    _least = { .startTime = LONG_MAX, .numPackets = UINT_MAX, .destIp = "" };
+    [_pairsWithCount removeAllObjects];
+    [_pairsWithPackets removeAllObjects];
     pcap_t *descr;
     char errbuf[PCAP_ERRBUF_SIZE];
     fSize = fsize("14pcap.pcap");
@@ -80,6 +89,7 @@ off_t fsize(const char *filename) {
     }
     
     dispatch_async(dispatch_get_main_queue(),^{
+        _hm.clear();
         NSDictionary *dictionary = [NSDictionary dictionaryWithObject: self.suspectAttacks forKey: @"attacks"];
         [[NSNotificationCenter defaultCenter] postNotificationName: packetFinish object: nil userInfo: dictionary];
     });

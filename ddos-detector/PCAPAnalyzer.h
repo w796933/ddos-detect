@@ -55,7 +55,7 @@ typedef struct LeastCount {
 static const u_int THRESHOLD = 1000;
 static const u_int MIN_PACKETS_PER_HOUR = 6;
 static const u_int INTERVAL = 600; // 10 min
-static const u_int MAP_MAX_SIZE = 2000000;
+static const u_int MAP_MAX_SIZE = 1000000;
 
 static double_t progress = 0;
 static u_int counter = 0;
@@ -77,6 +77,7 @@ __unsafe_unretained static id _Nullable __self;
 + (time_t) startT;
 + (time_t) endT;
 + (double) progress;
++ (void) resetProgress;
 - (void) analyze: (char *_Nonnull)filename;
 - (void) filterAttacks: (NSArray *_Nonnull)attacks completion: (FilterBlock _Nonnull)block;
 
