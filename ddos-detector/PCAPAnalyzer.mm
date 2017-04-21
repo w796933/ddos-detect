@@ -9,63 +9,12 @@
 #import <Foundation/Foundation.h>
 
 #import "PCAPAnalyzer.h"
-#import "DDViewController.h"
-
-#include <iostream>
-#include <string>
-#include <vector>
-#include <map>
-#include <pcap.h>
-#include <net/ethernet.h>
-#include <netinet/ip.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <netinet/udp.h>
-#include <netinet/ip_icmp.h>
-#include <arpa/inet.h>
-#include <sys/stat.h>
-
-using namespace std;
-
-#pragma mark - typedef
-
-typedef NSMutableDictionary DDAttack;
-typedef NSMutableDictionary DDPair; // ( destIp, sourceIps[] )
-typedef NSHashTable DDUniquePairs;
-typedef NSMutableDictionary DDUniquePairsMap;
-
-typedef struct DDOSAttack {
-    int protocol;
-    NSMutableSet *sourceIps;
-    time_t startTime;
-    time_t endTime;
-    u_int numPackets;
-} ddos_t;
-
-typedef struct LeastCount {
-    u_int numPackets;
-    time_t startTime;
-    string destIp;
-} count_t;
-
-#pragma mark - Globals
-
-static const u_int THRESHOLD = 1000;
-static const u_int MIN_PACKETS_PER_HOUR = 6;
-static const u_int INTERVAL = 600; // 5 min
-static const u_int MAP_MAX_SIZE = 100000;
-
-static double_t progress = 0;
-static u_int counter = 0;
-static off_t fSize;
-static time_t startT;
-static time_t endT;
 
 @interface PCAPAnalyzer ()
 
 @property (nonatomic, retain) NSMutableArray<DDAttack *> *suspectAttacks;
 @property (nonatomic, retain) NSMutableSet<DDAttack *> *actualAttacks;
-@property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSMutableArray<NSNumber *> *> *pairsWithPackets;
+@property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSNumber *> *pairsWithPackets;
 @property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSNumber *> *pairsWithCount;
 @property (nonatomic) map<string, ddos_t> hm;
 @property (nonatomic) count_t least;
@@ -89,6 +38,7 @@ off_t fsize(const char *filename) {
     if (self) {
         __self = self;
         _suspectAttacks = [NSMutableArray new];
+        _actualAttacks = [NSMutableSet new];
         _least = { .startTime = LONG_MAX, .numPackets = UINT_MAX, .destIp = "" };
         _pairsWithPackets = [NSMutableDictionary new];
         _pairsWithCount = [NSMutableDictionary new];
@@ -219,7 +169,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
     return dict;
 }
 
-- (void) filterAttacks: (NSArray *) attacks {
+- (void) filterAttacks: (NSArray *)attacks completion: (FilterBlock)done {
     NSMutableDictionary *timeline = [NSMutableDictionary new];
     u_long numPackThresh = 0;
     u_long ratio = 0;
@@ -253,6 +203,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
                     DDPair *pair = [DDPair new];
                     [pair setObject:[attack2 objectForKey:@"destIp"] forKey:@"destIp"];
                     [pair setObject:[attack2 objectForKey:@"sourceIps"] forKey:@"sourceIps"];
+                    [pair setObject:[attack2 objectForKey:@"protocol"] forKey:@"protocol"];
                     if ([self attacksEqual:attack1 with: attack2] &&
                         (((NSNumber *)[attack1 objectForKey:@"numPackets"]).unsignedIntegerValue >= numPackThresh &&
                          ((NSNumber *)[attack2 objectForKey:@"numPackets"]).unsignedIntegerValue >= numPackThresh)) {
@@ -261,24 +212,35 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
                             }
                             if ([self.pairsWithCount objectForKey:pair] == nil) {
                                 [self.pairsWithCount setObject:@0 forKey:pair];
-                                NSMutableArray *arr = [NSMutableArray new];
-                                [self.pairsWithPackets setObject:arr forKey:pair];
+                                [self.pairsWithPackets setObject:@0 forKey:pair];
                             } else {
-                                [self.pairsWithCount setObject:@([self.pairsWithCount objectForKey:pair].integerValue + 1) forKey:pair];
-                                [[self.pairsWithPackets objectForKey:pair] addObject:[attack2 objectForKey:@"numPackets"]];
+                                [self.pairsWithCount setObject: @([self.pairsWithCount objectForKey:pair].integerValue + 1) forKey:pair];
+                                NSNumber *num = [self.pairsWithPackets objectForKey:pair];
+                                NSNumber *incomingNum = [attack2 objectForKey:@"numPackets"];
+                                [self.pairsWithPackets setObject:@((num.integerValue + incomingNum.integerValue) / 2) forKey:pair];
                             }
                     }
                     else {
                         if ([self.pairsWithCount objectForKey:pair] != nil) {
-                            [self.pairsWithCount setObject:@0 forKey:pair];
-                            [self.pairsWithCount setObject:@([self.pairsWithCount objectForKey:pair].integerValue - 1) forKey:pair];
+                            [self.pairsWithCount setObject: @0 forKey:pair];
+                            [self.pairsWithCount setObject: @([self.pairsWithCount objectForKey:pair].integerValue - 1) forKey:pair];
                         }
                     }
                 }
             }
         }
     }
-    NSLog(@"%@", self.pairsWithPackets);
+    NSArray *keys = [self.pairsWithPackets allKeys];
+    NSArray *vals = [self.pairsWithPackets allValues];
+    for (int i = 0; i < keys.count; i++) {
+        NSMutableDictionary *attack = [NSMutableDictionary new];
+        attack = ((NSMutableDictionary *)keys[i]).mutableCopy;
+        NSString *p = convertProtocol(((NSNumber *)[attack objectForKey:@"protocol"]).charValue);
+        [attack setObject:vals[i] forKey:@"numPackets"];
+        [attack setObject:p forKey:@"protocol"];
+        [self.actualAttacks addObject:attack];
+    }
+    done(self.actualAttacks);
 }
 
 - (BOOL) attacksEqual: (DDAttack *)att1 with:(DDAttack *)att2 {
@@ -287,6 +249,22 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
     NSSet<NSString *> *sources2 = (NSSet<NSString *> *)[att2 objectForKey:@"sourceIps"];
     BOOL sourceIp = [sources1 isEqualToSet:sources2];
     return destIp & sourceIp;
+}
+
+NSString* convertProtocol(u_char ip_p) {
+    switch(ip_p) {
+        case IPPROTO_TCP:
+            return @"TCP";
+            break;
+        case IPPROTO_UDP:
+            return @"UDP";
+            break;
+        case IPPROTO_ICMP:
+            return @"ICMP";
+            break;
+        default:
+            return @"UNKNOWN";
+    }
 }
 
 

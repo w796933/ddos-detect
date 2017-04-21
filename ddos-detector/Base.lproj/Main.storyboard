@@ -725,7 +725,7 @@
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="SourceCellID" width="569" minWidth="40" maxWidth="1000" id="ZTD-Wp-7hm">
+                                                <tableColumn identifier="SourceCellID" width="393" minWidth="40" maxWidth="1000" id="ZTD-Wp-7hm">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Source IPs">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -738,7 +738,7 @@
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                 </tableColumn>
-                                                <tableColumn identifier="ProtocolCellID" width="64" minWidth="10" maxWidth="3.4028234663852886e+38" id="4di-4X-Agr">
+                                                <tableColumn identifier="ProtocolCellID" width="356" minWidth="10" maxWidth="3.4028234663852886e+38" id="4di-4X-Agr">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Protocol">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -758,32 +758,6 @@
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                     </tableHeaderCell>
                                                     <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="1by-kJ-ZxA">
-                                                        <font key="font" metaFont="system"/>
-                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                </tableColumn>
-                                                <tableColumn identifier="TimeCellID" width="110" minWidth="10" maxWidth="3.4028234663852886e+38" id="W47-xl-Kmz">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Time">
-                                                        <font key="font" metaFont="smallSystem"/>
-                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                                    </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="mTZ-gE-P7a">
-                                                        <font key="font" metaFont="system"/>
-                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    </textFieldCell>
-                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
-                                                </tableColumn>
-                                                <tableColumn identifier="RatioCellID" width="118" minWidth="10" maxWidth="3.4028234663852886e+38" id="Oje-Bf-dNA">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Ratio">
-                                                        <font key="font" metaFont="smallSystem"/>
-                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
-                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                                    </tableHeaderCell>
-                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="vpa-wo-6t2">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -826,7 +800,7 @@
                                 </connections>
                             </button>
                             <mapView mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="Qkh-i9-hTF">
-                                <rect key="frame" x="0.0" y="0.0" width="1117" height="422"/>
+                                <rect key="frame" x="0.0" y="0.0" width="1117" height="730"/>
                             </mapView>
                             <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" bezeled="NO" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="te6-tq-JDy">
                                 <rect key="frame" x="401" y="1045" width="16" height="16"/>
@@ -845,12 +819,12 @@
                             <constraint firstItem="o0d-uI-ZIl" firstAttribute="top" secondItem="IrS-6p-ei5" secondAttribute="bottom" constant="21" id="i2M-zY-ofd"/>
                             <constraint firstItem="IrS-6p-ei5" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="ikA-dh-UpC"/>
                             <constraint firstItem="IrS-6p-ei5" firstAttribute="centerY" secondItem="RM5-cG-3Kb" secondAttribute="centerY" id="j6M-eH-5Tr"/>
-                            <constraint firstItem="Qkh-i9-hTF" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="666" id="kuK-DR-oej"/>
+                            <constraint firstItem="Qkh-i9-hTF" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="358" id="kuK-DR-oej"/>
                             <constraint firstItem="IrS-6p-ei5" firstAttribute="centerY" secondItem="B03-rL-hYu" secondAttribute="centerY" id="nhJ-OH-1sp"/>
                             <constraint firstItem="o0d-uI-ZIl" firstAttribute="top" secondItem="IrS-6p-ei5" secondAttribute="bottom" constant="21" id="qOZ-lT-ej8"/>
                             <constraint firstItem="IrS-6p-ei5" firstAttribute="leading" secondItem="te6-tq-JDy" secondAttribute="trailing" constant="27" id="rEm-dI-etW"/>
                             <constraint firstItem="IrS-6p-ei5" firstAttribute="centerX" secondItem="o0d-uI-ZIl" secondAttribute="centerX" id="sIh-EI-E9t"/>
-                            <constraint firstItem="Qkh-i9-hTF" firstAttribute="top" secondItem="o0d-uI-ZIl" secondAttribute="bottom" constant="306" id="uhv-T6-4Ch"/>
+                            <constraint firstItem="Qkh-i9-hTF" firstAttribute="top" secondItem="o0d-uI-ZIl" secondAttribute="bottom" constant="-2" id="uhv-T6-4Ch"/>
                             <constraint firstAttribute="trailing" secondItem="Qkh-i9-hTF" secondAttribute="trailing" id="x1Q-Y5-7lr"/>
                         </constraints>
                     </view>
