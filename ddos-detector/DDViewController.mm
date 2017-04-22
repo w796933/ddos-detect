@@ -194,5 +194,4 @@ static const NSString *ratioCellId = @"RatioCellID";
     [self.timerLabel setStringValue: [NSString stringWithFormat: @"%02.0f:%02.0f:%02.0f", hours, minutes, seconds]];
 }
 
-
 @end

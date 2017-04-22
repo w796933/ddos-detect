@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import <MapKit/MapKit.h>
 
-@interface DDViewController : NSViewController<NSTableViewDelegate, NSTableViewDataSource, MKMapViewDelegate>
+@interface DDViewController : NSViewController<NSTableViewDelegate, NSTableViewDataSource>
 
 @property (weak) IBOutlet NSTextField *alertLabel;
 @property (weak) IBOutlet NSTableView *tableView;
