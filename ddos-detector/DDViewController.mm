@@ -109,8 +109,9 @@ static const NSString *ratioCellId = @"RatioCellID";
         AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
         for (NSMutableString *ip in strongSelf.ips) {
            [ip appendString:@"/json"];
-            [manager GET:ip parameters:nil
-              success:^(NSURLSessionDataTask *task, id responseObject) {
+            [manager GET:ip parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+                NSLog(@"%@", downloadProgress);
+            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
                 if (responseObject[@"city"] != nil) {
                     CLLocationCoordinate2D coord;
                     NSString *loc = responseObject[@"loc"];
@@ -122,7 +123,7 @@ static const NSString *ratioCellId = @"RatioCellID";
                     point.title = responseObject[@"hostname"];
                     [strongSelf.mapView addAnnotation: point];
                 }
-            } failure:^(NSURLSessionDataTask *task, NSError *error) {
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
                 NSLog(@"Failure: %@", error);
             }];
         }
