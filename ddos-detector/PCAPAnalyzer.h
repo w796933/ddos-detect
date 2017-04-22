@@ -33,7 +33,7 @@ using namespace std;
 typedef void (^FilterBlock)(NSMutableSet *_Nonnull result);
 
 typedef NSMutableDictionary DDAttack;
-typedef NSMutableDictionary DDPair; // ( destIp, sourceIps[] )
+typedef NSMutableDictionary DDPair;
 typedef NSMutableDictionary DDUniquePairsMap;
 
 typedef struct DDOSAttack {
@@ -62,8 +62,6 @@ static u_int counter = 0;
 static off_t fSize;
 static time_t startT;
 static time_t endT;
-
-#pragma mark - const
 
 static NSString * _Nonnull const attackDetectedEvent = @"AttackDetected";
 static NSString * _Nonnull const packetEvent = @"PacketReceived";

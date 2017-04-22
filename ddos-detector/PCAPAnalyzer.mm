@@ -124,7 +124,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
         attack.endTime = pkthdr->ts.tv_sec;
         attack.numPackets = 1;
         
-        // using an extra reference to self in order to call objc method
         [__self populateMap: attack destination: destIp];
     }
 }
@@ -136,13 +135,12 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
         if (_hm.size() == MAP_MAX_SIZE) {
             _hm[_least.destIp] = attack;
         } else {
-            // map still has space, we're good
             _hm[dest] = attack;
         }
     } else {
         ddos_t da = _hm[dest];
         if ((attack.startTime - da.startTime) <= INTERVAL) {
-            da.numPackets++; // still the same second
+            da.numPackets++;
             da.endTime = attack.startTime;
             [da.sourceIps addObject:[[attack.sourceIps allObjects] objectAtIndex:0]];
             da.protocol = da.protocol != attack.protocol ? attack.protocol : da.protocol;
@@ -163,7 +161,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
         if (da.startTime < _least.startTime && da.numPackets < _least.numPackets) {
             _least = { .startTime = da.startTime, .numPackets = da.numPackets, .destIp = dest };
         }
-        // re-populate
         _hm[dest] = da;
     }
 }
