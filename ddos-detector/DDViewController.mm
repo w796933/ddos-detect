@@ -199,20 +199,4 @@ static const NSString *ratioCellId = @"RatioCellID";
     [self.timerLabel setStringValue: [NSString stringWithFormat: @"%02.0f:%02.0f:%02.0f", hours, minutes, seconds]];
 }
 
-#pragma mark - MapView
-
-- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
-    if ([annotation isKindOfClass:[MKUserLocation class]])
-        return nil;
-    
-    // try to dequeue an existing pin view first
-    if ([annotation isKindOfClass:[MKPointAnnotation class]]){
-        MKAnnotationView *anView = [MKAnnotationView new];
-        NSImage *image = [NSImage imageNamed:@"Bomb"];
-        [anView setImage:image];
-        return anView;
-    }
-    return nil;
-}
-
 @end
