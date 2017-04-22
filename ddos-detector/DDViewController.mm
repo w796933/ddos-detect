@@ -105,26 +105,21 @@ static const NSString *ratioCellId = @"RatioCellID";
                 [strongSelf.ips addObject:ip.mutableCopy];
             }
         }
-        //NSURL *baseURL = [NSURL URLWithString:@"http://ipinfo.io/"];
-        NSURL *baseURL = [NSURL URLWithString:@"http://ip-api.com/json/"];
+        NSURL *baseURL = [NSURL URLWithString:@"http://ipinfo.io/"];
         AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
         for (NSMutableString *ip in strongSelf.ips) {
-           // [ip appendString:@"/json"];
-            [manager GET:ip parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+           [ip appendString:@"/json"];
+            [manager GET:ip parameters:nil
+              success:^(NSURLSessionDataTask *task, id responseObject) {
                 if (responseObject[@"city"] != nil) {
                     CLLocationCoordinate2D coord;
+                    NSString *loc = responseObject[@"loc"];
+                    NSArray *latlon = [loc componentsSeparatedByString:@","];
+                    coord.latitude = ((NSString *) latlon[0]).doubleValue;
+                    coord.longitude = ((NSString *) latlon[1]).doubleValue;
                     MKPointAnnotation *point = [MKPointAnnotation new];
-                    coord.latitude = ((NSNumber *)responseObject[@"lat"]).doubleValue;
-                    coord.longitude = ((NSNumber *)responseObject[@"lon"]).doubleValue;
                     point.coordinate = coord;
-                    point.title = responseObject[@"isp"];
-//                    NSString *loc = responseObject[@"loc"];
-//                    NSArray *latlon = [loc componentsSeparatedByString:@","];
-//                    coord.latitude = ((NSString *) latlon[0]).doubleValue;
-//                    coord.longitude = ((NSString *) latlon[1]).doubleValue;
-//                    MKPointAnnotation *point = [MKPointAnnotation new];
-//                    point.coordinate = coord;
-//                    point.title = responseObject[@"hostname"];
+                    point.title = responseObject[@"hostname"];
                     [strongSelf.mapView addAnnotation: point];
                 }
             } failure:^(NSURLSessionDataTask *task, NSError *error) {
@@ -198,5 +193,6 @@ static const NSString *ratioCellId = @"RatioCellID";
     [self.progressIndicator setDoubleValue:[PCAPAnalyzer progress] * 100.0];
     [self.timerLabel setStringValue: [NSString stringWithFormat: @"%02.0f:%02.0f:%02.0f", hours, minutes, seconds]];
 }
+
 
 @end
