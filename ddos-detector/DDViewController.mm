@@ -188,8 +188,7 @@ static const NSString *ratioCellId = @"RatioCellID";
 
 #pragma mark - Timer
 
-- (void)timerTick:(NSTimer *)timer
-{
+- (void)timerTick:(NSTimer *)timer {
     // Timers are not guaranteed to tick at the nominal rate specified, so this isn't technically accurate.
     // However, this is just an example to demonstrate how to stop some ongoing activity, so we can live with that inaccuracy.
     self.ticks += 1;
@@ -198,6 +197,22 @@ static const NSString *ratioCellId = @"RatioCellID";
     double hours = trunc(_ticks / 3600.0);
     [self.progressIndicator setDoubleValue:[PCAPAnalyzer progress] * 100.0];
     [self.timerLabel setStringValue: [NSString stringWithFormat: @"%02.0f:%02.0f:%02.0f", hours, minutes, seconds]];
+}
+
+#pragma mark - MapView
+
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
+    if ([annotation isKindOfClass:[MKUserLocation class]])
+        return nil;
+    
+    // try to dequeue an existing pin view first
+    if ([annotation isKindOfClass:[MKPointAnnotation class]]){
+        MKAnnotationView *anView = [MKAnnotationView new];
+        NSImage *image = [NSImage imageNamed:@"Bomb"];
+        [anView setImage:image];
+        return anView;
+    }
+    return nil;
 }
 
 @end
