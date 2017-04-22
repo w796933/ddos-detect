@@ -65,12 +65,12 @@ static time_t endT;
 
 #pragma mark - const
 
-static NSString * _Nonnull attackDetectedEvent = @"AttackDetected";
-static NSString * _Nonnull packetEvent = @"PacketReceived";
-static NSString * _Nonnull packetFinish = @"PacketsFinished";
-static NSString * _Nonnull filterFinish = @"FilteringFinished";
+static NSString * _Nonnull const attackDetectedEvent = @"AttackDetected";
+static NSString * _Nonnull const packetEvent = @"PacketReceived";
+static NSString * _Nonnull const packetFinish = @"PacketsFinished";
+static NSString * _Nonnull const filterFinish = @"FilteringFinished";
 
-__unsafe_unretained static id _Nullable __self;
+__weak static id _Nullable __self;
 
 @interface PCAPAnalyzer : NSObject
 
