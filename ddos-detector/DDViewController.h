@@ -9,8 +9,11 @@
 #import <Cocoa/Cocoa.h>
 #import <MapKit/MapKit.h>
 
+// controller conforms to these protocols: NSTableViewDelegate & NSTableViewDataSource
+// aka -> implement functions pre-defined in these protocols for the table view
 @interface DDViewController : NSViewController<NSTableViewDelegate, NSTableViewDataSource>
 
+// these properties connect to the view (storyboard)
 @property (weak) IBOutlet NSTextField *alertLabel;
 @property (weak) IBOutlet NSTableView *tableView;
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;

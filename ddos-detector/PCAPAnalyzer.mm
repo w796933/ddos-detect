@@ -12,17 +12,18 @@
 
 @interface PCAPAnalyzer ()
 
-@property (nonatomic, retain) NSMutableArray<DDAttack *> *suspectAttacks;
-@property (nonatomic, retain) NSMutableSet<DDAttack *> *actualAttacks;
+// PCAPAnalyzer props
+@property (nonatomic, retain) NSMutableArray<DDAttack *> *suspectAttacks; // all the attacks that pass the initial threshold
+@property (nonatomic, retain) NSMutableSet<DDAttack *> *actualAttacks; // actual attacks found
 @property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSNumber *> *pairsWithPackets;
 @property (nonatomic, retain) DDUniquePairsMap<DDPair *, NSNumber *> *pairsWithCount;
-@property (nonatomic) map<string, ddos_t> hm;
-@property (nonatomic) count_t least;
+@property (nonatomic) map<string, ddos_t> hm; // k buckets
 
 @end
 
 @implementation PCAPAnalyzer
 
+// returns file size
 off_t fsize(const char *filename) {
     struct stat st;
     
@@ -32,14 +33,13 @@ off_t fsize(const char *filename) {
     return -1;
 }
 
-- (instancetype)init
-{
+// constructor
+- (instancetype)init {
     self = [super init];
     if (self) {
         __self = self;
         _suspectAttacks = [NSMutableArray new];
         _actualAttacks = [NSMutableSet new];
-        _least = { .startTime = LONG_MAX, .numPackets = UINT_MAX, .destIp = "" };
         _pairsWithPackets = [NSMutableDictionary new];
         _pairsWithCount = [NSMutableDictionary new];
     }
@@ -62,17 +62,30 @@ off_t fsize(const char *filename) {
     return endT;
 }
 
+- (string) findLeast {
+    string leastIp = "";
+    time_t minTime = 0;
+    map<string, ddos_t>::iterator it;
+    for (it = _hm.begin(); it != _hm.end(); ++it) {
+        if (it->second.startTime < minTime) {
+            minTime = it->second.startTime;
+            leastIp = it->first;
+        }
+    }
+    return leastIp;
+}
+
 - (void) analyze: (char *)filename {
+    // reset everything for new analysis
     progress = 0.0;
     counter = 0.0;
     [_suspectAttacks removeAllObjects];
     [_actualAttacks removeAllObjects];
-    _least = { .startTime = LONG_MAX, .numPackets = UINT_MAX, .destIp = "" };
     [_pairsWithCount removeAllObjects];
     [_pairsWithPackets removeAllObjects];
     pcap_t *descr;
     char errbuf[PCAP_ERRBUF_SIZE];
-    fSize = fsize("14pcap.pcap");
+    fSize = fsize(filename);
     // open capture file for offline processing
     descr = pcap_open_offline(filename, errbuf);
     if (descr == NULL) {
@@ -88,6 +101,7 @@ off_t fsize(const char *filename) {
         return;
     }
     
+    // send data back to UI & return to main thread
     dispatch_async(dispatch_get_main_queue(),^{
         _hm.clear();
         NSDictionary *dictionary = [NSDictionary dictionaryWithObject: self.suspectAttacks forKey: @"attacks"];
@@ -106,6 +120,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
     attack.sourceIps = [NSMutableSet new];
     ethernetHeader = (struct ether_header*)packet;
     
+    // convert network byte to normal byte for host
     if (ntohs(ethernetHeader->ether_type) == ETHERTYPE_IP) {
         ipHeader = (struct ip*)(packet + sizeof(struct ether_header));
         inet_ntop(AF_INET, &(ipHeader->ip_src), sourceIp, INET_ADDRSTRLEN);
@@ -133,10 +148,9 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
     if (_hm.find(dest) == _hm.end()) {
         // SpaceSaving: replace oldest item with least count
         if (_hm.size() == MAP_MAX_SIZE) {
-            _hm[_least.destIp] = attack;
-        } else {
-            _hm[dest] = attack;
+            _hm.erase([self findLeast]);
         }
+        _hm[dest] = attack;
     } else {
         ddos_t da = _hm[dest];
         if ((attack.startTime - da.startTime) <= INTERVAL) {
@@ -157,10 +171,6 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
             [da.sourceIps removeAllObjects];
             [da.sourceIps addObject:[[attack.sourceIps allObjects] objectAtIndex:0]];
         }
-        // find the "least" element
-        if (da.startTime < _least.startTime && da.numPackets < _least.numPackets) {
-            _least = { .startTime = da.startTime, .numPackets = da.numPackets, .destIp = dest };
-        }
         _hm[dest] = da;
     }
 }
@@ -177,29 +187,35 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
 }
 
 - (void) filterAttacks: (NSArray *)attacks completion: (FilterBlock)done {
+    // each key represents a new interval & value is an array of attacks that occured in the period
     NSMutableDictionary *timeline = [NSMutableDictionary new];
     u_long numPackThresh = 0;
     u_long ratio = 0;
     // find max pp10min
     for (DDAttack *attack in attacks) {
         NSString *time = ((NSNumber *)[attack objectForKey:@"endTime"]).stringValue;
+        // for each interval, create an empty array
         if (timeline[time] == nil) {
             timeline[time] = [NSMutableArray new];
         }
+        // also, find the largest number of packets per 10 min
         if (((NSNumber *)[attack objectForKey:@"numPackets"]).unsignedIntegerValue > numPackThresh) {
             numPackThresh = ((NSNumber *)[attack objectForKey:@"numPackets"]).unsignedIntegerValue;
         }
     }
     numPackThresh /= 2;
-    ratio = (numPackThresh / 3) / 10;
+    ratio = numPackThresh / 30;
     numPackThresh = (numPackThresh - numPackThresh % 10);
     ratio = (ratio - ratio % 10);
     for (DDAttack *attack in attacks) {
+        // add attack to timeline
         NSString *timeString = ((NSNumber *)[attack objectForKey:@"endTime"]).stringValue;
         [((NSMutableArray *)timeline[timeString]) addObject:attack];
     }
     NSArray *sortedKeys = [[timeline allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
     NSArray *objects = [timeline objectsForKeys: sortedKeys notFoundMarker: [NSNull null]];
+    
+    // essentially, seeing if the same attack persists for an hour
     for (int i = 0; i < sortedKeys.count - 1; i++) {
         for (DDAttack *attack1 in objects[i]) {
             for (DDAttack *attack2 in objects[i + 1]) { // compare adjacent
@@ -214,7 +230,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
                     if ([self attacksEqual:attack1 with: attack2] &&
                         (((NSNumber *)[attack1 objectForKey:@"numPackets"]).unsignedIntegerValue >= numPackThresh &&
                          ((NSNumber *)[attack2 objectForKey:@"numPackets"]).unsignedIntegerValue >= numPackThresh)) {
-                            if ([[self.pairsWithCount objectForKey:pair]  isEqual: @(MIN_PACKETS_PER_HOUR)]) {
+                            if ([[self.pairsWithCount objectForKey:pair]  isEqual: @(MIN_INTERVALS)]) {
                                 continue;
                             }
                             if ([self.pairsWithCount objectForKey:pair] == nil) {
@@ -239,6 +255,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
     }
     NSArray *keys = [self.pairsWithPackets allKeys];
     NSArray *vals = [self.pairsWithPackets allValues];
+    // add to actualAttacks the keys & values from pairsWithPackets
     for (int i = 0; i < keys.count; i++) {
         NSMutableDictionary *attack = [NSMutableDictionary new];
         attack = ((NSMutableDictionary *)keys[i]).mutableCopy;
@@ -250,6 +267,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
     done(self.actualAttacks);
 }
 
+// check if two attacks are equal
 - (BOOL) attacksEqual: (DDAttack *)att1 with:(DDAttack *)att2 {
     BOOL destIp = [((NSString *)[att1 objectForKey:@"destIp"]) isEqualToString:((NSString *)[att2 objectForKey:@"destIp"])];
     NSSet<NSString *> *sources1 = (NSSet<NSString *> *)[att1 objectForKey:@"sourceIps"];
@@ -258,6 +276,7 @@ void packetHandler(u_char *userData, const struct pcap_pkthdr* pkthdr, const u_c
     return destIp & sourceIp;
 }
 
+// convert protocol from number to string
 NSString* convertProtocol(u_char ip_p) {
     switch(ip_p) {
         case IPPROTO_TCP:

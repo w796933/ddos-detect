@@ -9,6 +9,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+// GENERATED - calls the application
 int main(int argc, const char * argv[]) {
     return NSApplicationMain(argc, argv);
 }

@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+// sub-class of NSView
 @interface DDView : NSView
 
 @end

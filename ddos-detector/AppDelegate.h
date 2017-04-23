@@ -8,8 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+// GENERATED - defines notifications for app events
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 
 @end
-

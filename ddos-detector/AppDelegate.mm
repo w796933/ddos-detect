@@ -12,6 +12,7 @@
 
 @end
 
+// GENERATED - implements app events (finished launching, app termination)
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {

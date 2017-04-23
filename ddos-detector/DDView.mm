@@ -10,6 +10,7 @@
 
 @implementation DDView
 
+// makes view background white
 - (void)drawRect:(NSRect)dirtyRect {
     // set any NSColor for filling, say white:
     [[NSColor whiteColor] setFill];

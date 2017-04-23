@@ -16,16 +16,15 @@ using namespace std;
 
 typedef NSMutableDictionary DDAttack;
 
+// constants that define the id for a certain part of the table view (each cell)
 static const NSString *destCellId = @"DestCellID";
 static const NSString *sourceCellId = @"SourceCellID";
 static const NSString *protocolCellId = @"ProtocolCellID";
 static const NSString *packetNumCellId = @"PacketNumberCellID";
-static const NSString *timeCellId = @"TimeCellID";
-static const NSString *ratioCellId = @"RatioCellID";
-
 
 @interface DDViewController ()
 
+// extra props in view controller
 @property (nonatomic, retain) PCAPAnalyzer *analyzer;
 @property (atomic, retain) NSMutableArray<DDAttack *> *attacks;
 @property (nonatomic, assign) CFTimeInterval ticks;
@@ -36,6 +35,7 @@ static const NSString *ratioCellId = @"RatioCellID";
 
 @implementation DDViewController
 
+// constructor for view controller
 - (instancetype)init
 {
     self = [super init];
@@ -46,6 +46,8 @@ static const NSString *ratioCellId = @"RatioCellID";
 }
 
 #pragma mark - View LifeCycle
+
+// these functions implement events in NSViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -59,10 +61,7 @@ static const NSString *ratioCellId = @"RatioCellID";
     PCAPAnalyzer *analyzer = [PCAPAnalyzer new];
     self.analyzer = analyzer;
 
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(receivePacketNotification:)
-                                                 name:packetEvent
-                                               object:nil];
+    // defines notif for certain events and their callback functions (selector)
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(endPacketNotification:)
                                                  name:packetFinish
@@ -85,19 +84,16 @@ static const NSString *ratioCellId = @"RatioCellID";
 
 #pragma mark - Notifications
 
-- (void) receivePacketNotification: (NSNotification *) notification {
-    NSDictionary *dict = [notification userInfo];
-    NSNumber *n = [dict objectForKey: @"counter"];
-    [self.alertLabel setStringValue: [NSString stringWithFormat: @"%@", n]];
-}
-
 - (void) endPacketNotification: (NSNotification *) notification {
     self.alertButton.enabled = true;
     NSDictionary *dict = [notification userInfo];
     self.attacks = [dict objectForKey: @"attacks"];
     [self.alertLabel setStringValue: @"capture finished"];
-    __weak __typeof__(self) weakSelf = self;;
+    // create weak version of self in order to veer away from a reference cycle
+    // essentially, create weak version so that it deallocates when it goes out of scope after callback
+    __weak __typeof__(self) weakSelf = self;
     [self.analyzer filterAttacks:self.attacks completion:^(NSMutableSet *response) {
+        // create strong version of the weak version ? welcome to objective-c buddies
         __typeof__(self) strongSelf = weakSelf;
         strongSelf.attacks = [response allObjects].mutableCopy;
         for (DDAttack *attack in strongSelf.attacks) {
@@ -105,6 +101,8 @@ static const NSString *ratioCellId = @"RatioCellID";
                 [strongSelf.ips addObject:ip.mutableCopy];
             }
         }
+        
+        // call ipinfo API for geolocation data
         NSURL *baseURL = [NSURL URLWithString:@"http://ipinfo.io/"];
         AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
         for (NSMutableString *ip in strongSelf.ips) {
@@ -127,6 +125,7 @@ static const NSString *ratioCellId = @"RatioCellID";
                 NSLog(@"Failure: %@", error);
             }];
         }
+        
         [strongSelf.progressIndicator setDoubleValue: 1.0];
         [strongSelf.tableView reloadData];
         [strongSelf.timer invalidate];
@@ -176,6 +175,7 @@ static const NSString *ratioCellId = @"RatioCellID";
     [self.timerLabel setStringValue: [NSString stringWithFormat: @"%02.0f:%02.0f:%02.0f", 0.0, 0.0, 0.0]];
     [self.alertLabel setStringValue: @"started capture..."];
     [self.tableView reloadData];
+    // create another thread to do the pcap analysis (with no delay)
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         char filename[] = "14pcap.pcap";
         [self.analyzer analyze: filename];
