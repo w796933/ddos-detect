@@ -64,7 +64,7 @@ off_t fsize(const char *filename) {
 
 - (string) findLeast {
     string leastIp = "";
-    time_t minTime = 0;
+    time_t minTime = INT_MAX;
     map<string, ddos_t>::iterator it;
     for (it = _hm.begin(); it != _hm.end(); ++it) {
         if (it->second.startTime < minTime) {
